@@ -1,0 +1,235 @@
+﻿@page
+@model EVCMS.RazorWebApp.DucPV.Pages.TransactionsDucPvs.IndexModel
+
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">Transactions List</h2>
+            <small class="text-muted">Danh sách giao dịch — tổng: @Model.TransactionsDucPv?.Count()</small>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            <div class="input-group">
+                <form method="get" class="d-flex gap-2">
+                    <input type="text" name="SearchUser" value="@Model.SearchUser"
+                           class="form-control form-control-sm" placeholder="Search by user/email" />
+
+                    <input type="number" name="SearchAmount"
+                           value="@(Model.SearchAmount?.ToString() ?? "")"
+                           class="form-control form-control-sm"
+                           placeholder="Min amount" />
+
+                    <select name="SearchStatus" class="form-select form-select-sm">
+                        <option value="">All Status</option>
+                        <option value="true" selected="@(Model.SearchStatus == true)">Active</option>
+                        <option value="false" selected="@(Model.SearchStatus == false)">Inactive</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Search</button>
+                </form>
+            </div>
+
+            <a asp-page="Create" class="btn btn-sm btn-success">+ Create</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-2">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-light text-center small">
+                        <tr>
+                            <th class="text-end" style="min-width:120px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].Amount)</th>
+                            <th style="min-width:200px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].Description)</th>
+                            <th style="min-width:130px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].TransactionDate)</th>
+                            <th style="min-width:90px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].Status)</th>
+                            <th style="min-width:140px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].CreatedAt)</th>
+                            <th style="min-width:140px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].UpdatedAt)</th>
+                            <th style="min-width:120px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].MethodDucPv)</th>
+                            <th style="min-width:120px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].Session)</th>
+                            <th style="min-width:160px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].UserAccount)</th>
+                            <th class="text-center" style="min-width:160px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        @if (Model.TransactionsDucPv == null || !Model.TransactionsDucPv.Any())
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">No transactions found.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.TransactionsDucPv)
+                            {
+                                <tr data-transaction-id="@item.TransactionTransactionsDucPvid">
+                                    <td class="text-end">
+                                        @(item.Amount != null ? string.Format("{0:N0}", item.Amount) : "-")
+                                    </td>
+                                    <td class="text-truncate" style="max-width:320px;">
+                                        @(!string.IsNullOrEmpty(item.Description) ? item.Description : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.TransactionDate is DateTime dt0 ? dt0.ToString("dd/MM/yyyy") : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.Status)
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.CreatedAt is DateTime dt1 ? dt1.ToString("dd/MM/yyyy HH:mm") : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.UpdatedAt is DateTime dt2 ? dt2.ToString("dd/MM/yyyy HH:mm") : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.MethodDucPv != null ? item.MethodDucPv.MethodDucPvid.ToString() : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        @(item.Session != null ? item.Session.SessionId.ToString() : "-")
+                                    </td>
+                                    <td>
+                                        @(item.UserAccount != null ? item.UserAccount.Email : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-page="./Edit" asp-route-id="@item.TransactionTransactionsDucPvid" class="btn btn-sm btn-outline-primary">Edit</a>
+                                            <a asp-page="./Details" asp-route-id="@item.TransactionTransactionsDucPvid" class="btn btn-sm btn-outline-info">Details</a>
+                                            <a asp-page="./Delete" asp-route-id="@item.TransactionTransactionsDucPvid" class="btn btn-sm btn-outline-danger">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-3 d-flex justify-content-center">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-page="./Index"
+                                   asp-route-SearchUser="@Model.SearchUser"
+                                   asp-route-SearchAmount="@Model.SearchAmount"
+                                   asp-route-SearchStatus="@Model.SearchStatus"
+                                   asp-route-PageIndex="@(Model.PageIndex - 1)">
+                                    Previous
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-page="./Index"
+                                       asp-route-SearchUser="@Model.SearchUser"
+                                       asp-route-SearchAmount="@Model.SearchAmount"
+                                       asp-route-SearchStatus="@Model.SearchStatus"
+                                       asp-route-PageIndex="@i">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-page="./Index"
+                                   asp-route-SearchUser="@Model.SearchUser"
+                                   asp-route-SearchAmount="@Model.SearchAmount"
+                                   asp-route-SearchStatus="@Model.SearchStatus"
+                                   asp-route-PageIndex="@(Model.PageIndex + 1)">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div> 
+        </div> 
+    </div> 
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/EVCMShub")
+            .build();
+
+        connection.start()
+            .then(() => console.log("SignalR connected on Index page."))
+            .catch(err => console.error("SignalR connect error:", err));
+
+        // Xóa
+        connection.on("Receiver_DeleteTransactionDucPV", function (deletedId) {
+            const row = document.querySelector(`[data-transaction-id='${deletedId}']`);
+            if (row) {
+                row.remove();
+            }
+        });
+
+        // ✅ Thêm mới
+        connection.on("Receiver_CreateTransactionDucPV", function (createdItem) {
+            console.log("New transaction created:", createdItem);
+
+            // Tạo dòng mới trong bảng
+            const tbody = document.querySelector("table tbody");
+            if (tbody) {
+                const tr = document.createElement("tr");
+                tr.setAttribute("data-transaction-id", createdItem.transactionTransactionsDucPvid);
+                tr.innerHTML = `
+                            <td class="text-end">${createdItem.amount ? Number(createdItem.amount).toLocaleString() : "-"}</td>
+                            <td class="text-truncate">${createdItem.description ?? "-"}</td>
+                            <td class="text-center">${createdItem.transactionDate ? new Date(createdItem.transactionDate).toLocaleDateString() : "-"}</td>
+                            <td class="text-center">${createdItem.status}</td>
+                            <td class="text-center">${createdItem.createdAt ? new Date(createdItem.createdAt).toLocaleString() : "-"}</td>
+                            <td class="text-center">${createdItem.updatedAt ? new Date(createdItem.updatedAt).toLocaleString() : "-"}</td>
+                            <td class="text-center">${createdItem.methodDucPv?.methodDucPvid ?? "-"}</td>
+                            <td class="text-center">${createdItem.session?.sessionId ?? "-"}</td>
+                            <td>${createdItem.userAccount?.email ?? "-"}</td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a href="/DucPV/TransactionsDucPvs/Edit?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="/DucPV/TransactionsDucPvs/Details?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-info">Details</a>
+                                    <a href="/DucPV/TransactionsDucPvs/Delete?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </div>
+                            </td>
+                        `;
+                tbody.prepend(tr);
+            }
+        });
+
+        connection.on("Receiver_UpdateTransactionDucPV", function (updatedItem) {
+            console.log("Transaction updated:", updatedItem);
+
+            const row = document.querySelector(`[data-transaction-id='${updatedItem.transactionTransactionsDucPvid}']`);
+            if (!row) return;
+
+            row.innerHTML = `
+                <td class="text-end">${updatedItem.amount ? Number(updatedItem.amount).toLocaleString() : "-"}</td>
+                <td class="text-truncate">${updatedItem.description ?? "-"}</td>
+                <td class="text-center">${updatedItem.transactionDate ? new Date(updatedItem.transactionDate).toLocaleDateString() : "-"}</td>
+                <td class="text-center">${updatedItem.status}</td>
+                <td class="text-center">${updatedItem.createdAt ? new Date(updatedItem.createdAt).toLocaleString() : "-"}</td>
+                <td class="text-center">${updatedItem.updatedAt ? new Date(updatedItem.updatedAt).toLocaleString() : "-"}</td>
+                <td class="text-center">${updatedItem.methodDucPv?.methodDucPvid ?? "-"}</td>
+                <td class="text-center">${updatedItem.session?.sessionId ?? "-"}</td>
+                <td>${updatedItem.userAccount?.email ?? "-"}</td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        <a href="/DucPV/TransactionsDucPvs/Edit?id=${updatedItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="/DucPV/TransactionsDucPvs/Details?id=${updatedItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-info">Details</a>
+                        <a href="/DucPV/TransactionsDucPvs/Delete?id=${updatedItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
+                </td>
+            `;
+        });
+    </script>
+}
+
+
+

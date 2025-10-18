@@ -1,0 +1,128 @@
+﻿@page "/TransactionsDucPv/TransactionsDucPvCreate"
+@using EVCMS.Repositories.DucPV.Models;
+@using EVCMS.Services;
+@inject EVCMS.Services.DucPV.IServiceProviders _serviceProvider;
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <h3 class="mb-4 fw-bold text-primary">
+        <i class="bi bi-plus-circle me-2"></i> Create New Transaction
+    </h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <EditForm Model="@newTransaction" OnValidSubmit="@HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
+                        <InputNumber @bind-Value="amount" class="form-control" placeholder="Enter amount" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">User Account <span class="text-danger">*</span></label>
+                        <InputText @bind-Value="userAccount" class="form-control" placeholder="Enter user account" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description</label>
+                    <InputTextArea @bind-Value="description" class="form-control" rows="3" placeholder="Enter transaction description" />
+                </div>
+
+                <div class="mb-3 form-check">
+                    <InputCheckbox @bind-Value="status" class="form-check-input" id="statusCheck" />
+                    <label class="form-check-label" for="statusCheck">
+                        Mark as Completed
+                    </label>
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger">
+                        @errorMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success">
+                        @successMessage
+                    </div>
+                }
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Creating...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span>Create Transaction</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                        <i class="bi bi-x-circle me-2"></i> Cancel
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private TransactionsDucPv newTransaction = new TransactionsDucPv();
+
+    private decimal amount;
+    private string userAccount = string.Empty;
+    private string description = string.Empty;
+    private bool status = false;
+
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = string.Empty;
+            successMessage = string.Empty;
+
+            var transaction = new TransactionsDucPv
+                {
+                    Amount = amount,    // <-- nếu model có trường này
+                    Description = description,
+                    Status = status,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+            await _serviceProvider.TransactionService.CreateAsync(transaction);
+
+            successMessage = "Transaction created successfully!";
+
+            // chuyển về route (không include .razor)
+            NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating transaction: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
+    }
+}

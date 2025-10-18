@@ -1,0 +1,15 @@
+﻿@page
+@model EVCMS.RazorWebApp.DucPV.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Log out";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    <p>Bạn có chắc chắn muốn đăng xuất không?</p>
+
+    <form method="post">
+        <button type="submit" class="btn btn-danger">Đăng xuất</button>
+        <a asp-page="/Index" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>

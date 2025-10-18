@@ -1,0 +1,101 @@
+﻿@page "/TransactionsDucPv/TransactionsDucPvList"
+@using EVCMS.Repositories.DucPV.Models;
+@using EVCMS.Services;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div class="container mt-4">
+    <h3 class="mb-4 fw-bold text-primary">
+        <i class="bi bi-cash-stack me-2"></i> Transaction Management
+    </h3>
+
+    @if (transactionsDucPvLists == null)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height:200px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-3 fw-semibold text-secondary">Loading transactions...</span>
+        </div>
+    }
+    else if (!transactionsDucPvLists.Any())
+    {
+        <div class="alert alert-info text-center mt-4">
+            No transactions found.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Amount</th>
+                            <th>User</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in transactionsDucPvLists)
+                        {
+                            <tr>
+                                <td class="text-center fw-semibold">@item.TransactionTransactionsDucPvid</td>
+                                <td class="text-success fw-semibold">@item.Amount</td>
+                                <td>@item.UserAccount</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    @if (item.Status == true)
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Pending</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>                
+            </div>
+            <div class="p-3">
+                <button type="button" class="btn btn-primary" @onclick="HandleCreate">
+                    <i class="bi bi-plus-circle me-2"></i> Create
+                </button>           
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<TransactionsDucPv> transactionsDucPvLists;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JS.InvokeVoidAsync("console.log", "✅ JS Runtime is working in OnInitializedAsync");
+        transactionsDucPvLists = await _serviceProvider.TransactionService.GetAllAsync();
+    }
+
+    public async Task HandleCreate()
+    {
+        // in log ra console để kiểm tra sự kiện có tới client không
+        try
+        {
+            await JS.InvokeVoidAsync("console.log", $"HandleCreate clicked at {DateTime.Now:O}");
+        }
+        catch
+        {
+            // nếu console log ko chạy cũng ko ảnh hưởng chuyển trang
+        }
+
+        // Thử chuyển bằng client router trước, nếu client router có vấn đề bạn có thể đổi forceLoad: true tạm thời.
+        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvCreate", forceLoad: false);
+    }
+}

@@ -1,0 +1,93 @@
+﻿@page
+@model EVCMS.RazorWebApp.DucPV.Pages.TransactionsDucPvs.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Edit Transaction</h4>
+            <a asp-page="./Index" class="btn btn-outline-secondary btn-sm">Back to List</a>
+        </div>
+
+        <div class="card-body">
+            <h6 class="card-subtitle mb-3 text-muted">Chỉnh sửa thông tin giao dịch</h6>
+
+            <form method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert"></div>
+                <input type="hidden" asp-for="TransactionsDucPv.TransactionTransactionsDucPvid" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="TransactionsDucPv.SessionId" class="form-label"></label>
+                        <select asp-for="TransactionsDucPv.SessionId" class="form-select" asp-items="ViewBag.SessionId"></select>
+                        <span asp-validation-for="TransactionsDucPv.SessionId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TransactionsDucPv.UserAccountId" class="form-label"></label>
+                        <select asp-for="TransactionsDucPv.UserAccountId" class="form-select" asp-items="ViewBag.UserAccountId"></select>
+                        <span asp-validation-for="TransactionsDucPv.UserAccountId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TransactionsDucPv.Amount" class="form-label"></label>
+                        <input asp-for="TransactionsDucPv.Amount" class="form-control" />
+                        <span asp-validation-for="TransactionsDucPv.Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TransactionsDucPv.MethodDucPvid" class="form-label"></label>
+                        <select asp-for="TransactionsDucPv.MethodDucPvid" class="form-select" asp-items="ViewBag.MethodDucPvid"></select>
+                        <span asp-validation-for="TransactionsDucPv.MethodDucPvid" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="TransactionsDucPv.Description" class="form-label"></label>
+                        <input asp-for="TransactionsDucPv.Description" class="form-control" />
+                        <span asp-validation-for="TransactionsDucPv.Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="TransactionsDucPv.TransactionDate" class="form-label"></label>
+                        <input asp-for="TransactionsDucPv.TransactionDate" class="form-control" type="date" />
+                        <span asp-validation-for="TransactionsDucPv.TransactionDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="TransactionsDucPv.Status" class="form-label"></label>
+                        <select asp-for="TransactionsDucPv.Status" class="form-select">
+                            <option value="">-- Select --</option>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+                        <span asp-validation-for="TransactionsDucPv.Status" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="TransactionsDucPv.MethodDucPvid" class="form-label">Timestamps</label>
+                        <div class="d-flex gap-2">
+                            <input asp-for="TransactionsDucPv.CreatedAt" class="form-control" type="datetime-local" />
+                            <input asp-for="TransactionsDucPv.UpdatedAt" class="form-control" type="datetime-local" />
+                        </div>
+                        <span class="text-muted small">Created / Updated</span>
+                    </div>
+
+                </div> 
+
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

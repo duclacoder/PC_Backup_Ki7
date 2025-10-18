@@ -1,0 +1,95 @@
+﻿@page
+@model EVCMS.RazorWebApp.DucPV.Pages.TransactionsDucPvs.DetailsModel
+
+@{
+    ViewData["Title"] = "Transaction Details";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Transaction Details</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0" id="transactionDetails">
+                <dt class="col-sm-3">Amount</dt>
+                <dd class="col-sm-9" id="amount">@Model.TransactionsDucPv.Amount</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9" id="description">@Model.TransactionsDucPv.Description</dd>
+
+                <dt class="col-sm-3">Transaction Date</dt>
+                <dd class="col-sm-9" id="transactionDate">@Model.TransactionsDucPv.TransactionDate</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9" id="status">@Model.TransactionsDucPv.Status</dd>
+
+                <dt class="col-sm-3">Created At</dt>
+                <dd class="col-sm-9" id="createdAt">@Model.TransactionsDucPv.CreatedAt</dd>
+
+                <dt class="col-sm-3">Updated At</dt>
+                <dd class="col-sm-9" id="updatedAt">@Model.TransactionsDucPv.UpdatedAt</dd>
+
+                <dt class="col-sm-3">Method</dt>
+                <dd class="col-sm-9" id="method">@Model.TransactionsDucPv.MethodDucPv?.MethodDucPvid</dd>
+
+                <dt class="col-sm-3">Session</dt>
+                <dd class="col-sm-9" id="session">@Model.TransactionsDucPv.Session?.SessionId</dd>
+
+                <dt class="col-sm-3">User Account</dt>
+                <dd class="col-sm-9" id="userAccount">@Model.TransactionsDucPv.UserAccount?.Email</dd>
+            </dl>
+
+            <div id="deletedMessage" class="text-danger fw-bold mt-3" style="display:none;">
+                ⚠️ This transaction has been deleted.
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-page="./Edit" asp-route-id="@Model.TransactionsDucPv.TransactionTransactionsDucPvid" class="btn btn-primary">Edit</a>
+        <a asp-page="./Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const transactionId = '@Model.TransactionsDucPv.TransactionTransactionsDucPvid';
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/EVCMShub")
+            .build();
+
+        connection.start();
+
+        connection.on("Receiver_DeleteTransactionDucPV", function (deletedId) {
+            if (deletedId == transactionId) {
+                const container = document.getElementById("transactionDetails");
+                container.querySelectorAll("dd").forEach(dd => dd.textContent = "-");
+
+                document.getElementById("deletedMessage").style.display = "block";
+            }
+        });
+
+        connection.on("Receiver_UpdateTransactionDucPV", function (updatedItem) {
+            if (updatedItem.transactionTransactionsDucPvid == transactionId) {
+                console.log("Transaction updated:", updatedItem);
+
+                document.getElementById("amount").textContent =
+                    updatedItem.amount ? Number(updatedItem.amount).toLocaleString() : "-";
+                document.getElementById("description").textContent = updatedItem.description ?? "-";
+                document.getElementById("transactionDate").textContent =
+                    updatedItem.transactionDate ? new Date(updatedItem.transactionDate).toLocaleString() : "-";
+                document.getElementById("status").textContent = updatedItem.status;
+                document.getElementById("createdAt").textContent =
+                    updatedItem.createdAt ? new Date(updatedItem.createdAt).toLocaleString() : "-";
+                document.getElementById("updatedAt").textContent =
+                    updatedItem.updatedAt ? new Date(updatedItem.updatedAt).toLocaleString() : "-";
+                document.getElementById("method").textContent = updatedItem.methodDucPv?.methodDucPvid ?? "-";
+                document.getElementById("session").textContent = updatedItem.session?.sessionId ?? "-";
+                document.getElementById("userAccount").textContent = updatedItem.userAccount?.email ?? "-";
+
+                document.getElementById("deletedMessage").style.display = "none"; 
+            }
+        });
+    </script>
+}
