@@ -1,8 +1,4 @@
-﻿--------------------------------------------------
--- USERS & ROLES
---------------------------------------------------
-
-use master
+﻿use master
 go
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = 'SWD392_SE1834_G2_T1')
@@ -22,6 +18,7 @@ CREATE TABLE Roles (
     RolesId INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(255) UNIQUE,
 );
+go
 
 CREATE TABLE Users (
     UsersId INT PRIMARY KEY IDENTITY(1,1),
@@ -29,13 +26,15 @@ CREATE TABLE Users (
     FullName NVARCHAR(255),
     Email NVARCHAR(255) UNIQUE,
     Phone NVARCHAR(50) UNIQUE,
-    Password VARCHAR(255),
-    ImageUrl text,
+    Password NVARCHAR(255),
+    ImageUrl NVARCHAR(255),
     RoleId INT FOREIGN KEY REFERENCES Roles(RolesId),
     CreatedAt DATETIME,
     UpdatedAt DATETIME,
+    Wallet DECIMAL(18,2),
     Status NVARCHAR(50) --Active, InActive
 );
+go
 
 --------------------------------------------------
 -- BATTERIES
@@ -45,7 +44,7 @@ CREATE TABLE Batteries (
     BatteriesId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT FOREIGN KEY REFERENCES Users(UsersId), -- seller
     BatteryName NVARCHAR(255),
-    Description TEXT,
+    Description NVARCHAR(255),
     Brand NVARCHAR(255),
     Capacity INT,          -- in Ah
     Voltage DECIMAL(5,2),  -- e.g. 12.0, 48.0
@@ -56,12 +55,14 @@ CREATE TABLE Batteries (
     UpdatedAt DATETIME,
     Status NVARCHAR(50) -- available, sold, etc.
 );
+go
 
 CREATE TABLE BatteryImages (
     BatteryImagesId INT PRIMARY KEY IDENTITY(1,1),
     BatteryId INT FOREIGN KEY REFERENCES Batteries(BatteriesId),
-    ImageUrl TEXT,
+    ImageUrl NVARCHAR(255),
 );
+go
 
 --------------------------------------------------
 -- VEHICLES
@@ -71,7 +72,7 @@ CREATE TABLE Vehicles (
     VehiclesId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT FOREIGN KEY REFERENCES Users(UsersId),
     VehicleName NVARCHAR(255),
-    Description TEXT,
+    Description NVARCHAR(255),
     Brand NVARCHAR(255),
     Model NVARCHAR(255),
 	Color NVARCHAR(50),
@@ -96,16 +97,18 @@ CREATE TABLE Vehicles (
 	Verified BIT,
     Status NVARCHAR(50)
 );
+go
 
 CREATE TABLE VehicleImages (
     VehicleImagesId INT PRIMARY KEY IDENTITY(1,1),
     VehicleId INT FOREIGN KEY REFERENCES Vehicles(VehiclesId),
-    ImageUrl text,
+    ImageUrl NVARCHAR(255),
 );
+go
 
 CREATE TABLE InspectionFees (
     InspectionFeesId INT PRIMARY KEY IDENTITY(1,1),
-    Description TEXT,
+    Description NVARCHAR(255),
     FeeAmount DECIMAL(18,2),
     Currency NVARCHAR(100), --VND, USD
     Type NVARCHAR(50), --fixed, percentage
@@ -114,30 +117,20 @@ CREATE TABLE InspectionFees (
     UpdatedAt DATETIME,
     Status NVARCHAR(50) --Active, InActive
 );
+go
 
 CREATE TABLE VehicleInspections (
     VehicleInspectionsId INT PRIMARY KEY IDENTITY(1,1),
     VehicleId INT FOREIGN KEY REFERENCES Vehicles(VehiclesId),
     StaffId INT FOREIGN KEY REFERENCES Users(UsersId),
     InspectionDate DATETIME,
-    Notes TEXT,
-	CancelReason TEXT,
+    Notes NVARCHAR(255),
+	CancelReason NVARCHAR(255),
     InspectionFeeId INT FOREIGN KEY REFERENCES InspectionFees(InspectionFeesId),
     InspectionFee DECIMAL(18,2),
     Status NVARCHAR(50)
 );
-
-CREATE TABLE AuctionsFee (
-    AuctionsFeeId INT PRIMARY KEY IDENTITY(1,1),
-    Description TEXT,
-    FeePerMinute DECIMAL(18,2),
-    EntryFee DECIMAL(18,2),
-    Currency NVARCHAR(50),
-    Type NVARCHAR(50), --fixed, percentage
-    CreatedAt DATETIME,
-    UpdatedAt DATETIME,
-    Status NVARCHAR(50)
-);
+go
 
 --------------------------------------------------
 -- TRANSACTIONS
@@ -154,22 +147,40 @@ CREATE TABLE BuySell (
 	Currency NVARCHAR(100), --VND, USD
     Status NVARCHAR(50)
 );
+go
+
+CREATE TABLE PaymentsMethods (
+    PaymentMethodId INT PRIMARY KEY IDENTITY(1,1),
+    MethodCode NVARCHAR(50) UNIQUE NOT NULL,     -- Ví dụ: 'MOMO', 'ZALOPAY', 'BANK', 'CREDIT'
+    MethodName NVARCHAR(100) NOT NULL,           -- Tên hiển thị: "Momo Wallet", "ZaloPay", ...
+    Gateway NVARCHAR(255),                       -- Cổng kết nối (nếu có)
+    Description NVARCHAR(500),                   -- Mô tả thêm
+    LogoUrl NVARCHAR(500),                       -- Link logo để hiển thị trong UI
+    IsActive BIT DEFAULT 1,                      -- Có đang được sử dụng hay không
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME
+);
+go
 
 CREATE TABLE Payments (
     PaymentsId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT FOREIGN KEY REFERENCES Users(UsersId),
+    PaymentMethodId INT FOREIGN KEY REFERENCES PaymentsMethods(PaymentMethodId),
     Gateway NVARCHAR(255),
     TransactionDate DATETIME,
     AccountNumber NVARCHAR(100),
     Content NVARCHAR(500),
     TransferType NVARCHAR(50),
     TransferAmount DECIMAL(18,2),
-    Currency NVARCHAR(100), --VND, USD
-    Accumulated DECIMAL(18,2), --Remain Cash in account
+    Currency NVARCHAR(100),          -- VND, USD
+    Accumulated DECIMAL(18,2),       -- Remain cash in account
     CreatedAt DATETIME,
     UpdatedAt DATETIME,
+    ReferenceId INT NULL,            
+    ReferenceType NVARCHAR(100) NULL,    
     Status NVARCHAR(50)
 );
+GO
 
 --------------------------------------------------
 -- AUCTION
@@ -182,21 +193,51 @@ CREATE TABLE Auctions (
     StartPrice DECIMAL(18,2),
     StartTime DATETIME,
     EndTime DATETIME,
-    AuctionsFeeId INT FOREIGN KEY REFERENCES AuctionsFee(AuctionsFeeId),
     FeePerMinute DECIMAL(18,2),
     OpenFee DECIMAL(18,2),
     EntryFee DECIMAL(18,2),
     Status NVARCHAR(50)
 );
+go
+
+CREATE TABLE AuctionsFee (
+    AuctionsFeeId INT PRIMARY KEY IDENTITY(1,1),
+    AuctionsId INT FOREIGN KEY REFERENCES Auctions(AuctionsId),
+    Description NVARCHAR(255),
+    FeePerMinute DECIMAL(18,2),
+    EntryFee DECIMAL(18,2),
+    Currency NVARCHAR(50),
+    Type NVARCHAR(50), --fixed, percentage
+    CreatedAt DATETIME,
+    UpdatedAt DATETIME,
+    Status NVARCHAR(50)
+);
+go
+
+CREATE TABLE AuctionParticipants (
+    AuctionParticipantId INT IDENTITY PRIMARY KEY,
+    PaymentsId INT FOREIGN KEY REFERENCES  Payments(PaymentsId),
+    UserId INT FOREIGN KEY REFERENCES Users(UsersId),
+    AuctionsId INT FOREIGN KEY REFERENCES Auctions(AuctionsId),
+    DepositAmount DECIMAL(18,2) NOT NULL,
+    DepositTime DATETIME,
+    RefundStatus NVARCHAR(255),
+    Status NVARCHAR(255), 
+    IsWinningBid BIT DEFAULT 0,
+    CONSTRAINT UQ_AuctionParticipant_UserAuction UNIQUE (AuctionsId, UserId)
+);
+go
 
 CREATE TABLE AuctionBids (
     AuctionBidsId INT PRIMARY KEY IDENTITY(1,1),
     AuctionId INT FOREIGN KEY REFERENCES Auctions(AuctionsId),
+    AuctionParticipantId INT FOREIGN KEY REFERENCES AuctionParticipants(AuctionParticipantId),
     BidderId INT FOREIGN KEY REFERENCES Users(UsersId),
     BidAmount DECIMAL(18,2),
     BidTime DATETIME,
-    Status NVARCHAR(50)
+    Status NVARCHAR(50),
 );
+go
 
 --------------------------------------------------
 -- PACKAGES
@@ -205,24 +246,26 @@ CREATE TABLE AuctionBids (
 CREATE TABLE PostPackages (
     PostPackagesId INT PRIMARY KEY IDENTITY(1,1),
     PackageName NVARCHAR(255),
-    Description TEXT,
+    Description NVARCHAR(255),
     PostPrice DECIMAL(18,2),
 	Currency NVARCHAR(100), --VND, USD
     PostDuration INT,
     Status NVARCHAR(50)
 );
+go
 
 CREATE TABLE UserPackages (
     UserPackagesId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT FOREIGN KEY REFERENCES Users(UsersId),
     PackageId INT FOREIGN KEY REFERENCES PostPackages(PostPackagesId),
+    PaymentsId INT FOREIGN KEY REFERENCES Payments(PaymentsId),
 	PurchasedPostDuration INT,
     PurchasedAtPrice DECIMAL(18,2),
 	Currency NVARCHAR(100), --VND, USD
     PurchasedAt DATETIME,
     Status NVARCHAR(50)
 );
-
+go
 --------------------------------------------------
 -- HISTORY
 --------------------------------------------------
@@ -238,7 +281,7 @@ CREATE TABLE Activities (
     UpdatedAt DATETIME,
     Status NVARCHAR(50)
 );
-
+go
 
 CREATE TABLE UserPosts (
     UserPostsId INT PRIMARY KEY IDENTITY(1,1),
@@ -258,173 +301,202 @@ go
 --------------------------------------------------
 -- ROLES DATA
 --------------------------------------------------
+-- Sử dụng database được chỉ định
+USE SWD392_SE1834_G2_T1
+GO
+
+--------------------------------------------------
+-- DỮ LIỆU CƠ BẢN (STATIC DATA)
+--------------------------------------------------
+
+-- 1. Bảng Roles
 INSERT INTO Roles (Name) VALUES 
-('Member'),
-('Staff'),
-('Admin')
---------------------------------------------------
--- USERS DATA
---------------------------------------------------
-INSERT INTO Users (UserName, FullName, Email, Phone, Password, ImageUrl, RoleId, CreatedAt, UpdatedAt, Status) VALUES 
--- Admin
-('admin', N'Bố Admin', 'admin@gm.c', '0901234567', '1', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJEqnKT0022XaMCyb6K37bte9OIjdUGLCHTA&s', 3, '2024-01-15 08:00:00', '2024-01-15 08:00:00', 'Active'),
+('Member'), 
+('Staff'), 
+('Admin');
+GO
 
--- Staff
-('staff', N'Má Staff ', 'staff1@gm.c', '0901234568', '1', 'https://tiemchupanh.com/wp-content/uploads/2024/07/4ed9efe2b3fd60a339ec23-683x1024.jpg', 2, '2024-01-20 08:00:00', '2024-01-20 08:00:00', 'Active'),
-('staff01', N'Bố Staff', 'staff2@gm.c', '0901234569', '1', 'https://chothuestudio.com/wp-content/uploads/2024/07/TCA_3837.jpg', 2, '2024-01-25 08:00:00', '2024-01-25 08:00:00', 'Active'),
+-- 2. Bảng PaymentsMethods
+INSERT INTO PaymentsMethods (MethodCode, MethodName, Gateway, Description, LogoUrl, IsActive) VALUES
+('VNPAY', N'Cổng thanh toán VNPAY', 'VNPAY', N'Thanh toán qua cổng VNPAY, hỗ trợ Internet Banking và mã QR.', 'https://vnpay.vn/logo.png', 1),
+('MOMO', N'Ví điện tử Momo', 'MOMO', N'Thanh toán qua ví điện tử Momo.', 'https://momo.vn/logo.png', 1);
+GO
 
--- Customers/Sellers
-('seller01', N'Phạm Minh Hải', 'hai.pham@gmail.com', '0912345678', 'hashed_password_seller1', 'https://example.com/images/seller1.jpg', 1, '2024-02-01 10:00:00', '2024-02-01 10:00:00', 'Active'),
-('customer01', N'Võ Thị Lan', 'lan.vo@gmail.com', '0923456789', 'hashed_password_customer1', 'https://example.com/images/customer1.jpg', 1, '2024-02-05 14:30:00', '2024-02-05 14:30:00', 'Active'),
-('seller02', N'Hoàng Văn Thắng', 'thang.hoang@gmail.com', '0934567890', 'hashed_password_seller2', 'https://example.com/images/seller2.jpg', 1, '2024-02-10 09:15:00', '2024-02-10 09:15:00', 'Active'),
-('customer02', N'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0945678901', 'hashed_password_customer2', 'https://example.com/images/customer2.jpg', 1, '2024-02-15 16:20:00', '2024-02-15 16:20:00', 'Active'),
-('seller03', N'Đỗ Minh Tuấn', 'tuan.do@gmail.com', '0956789012', 'hashed_password_seller3', 'https://example.com/images/seller3.jpg', 1, '2024-02-20 11:45:00', '2024-02-20 11:45:00', 'Active');
+-- 3. Bảng PostPackages (Gói đăng tin)
+INSERT INTO PostPackages (PackageName, Description, PostPrice, Currency, PostDuration, Status) VALUES
+(N'Gói Cơ Bản', N'Đăng tin trong 7 ngày', 50000.00, 'VND', 7, 'Active'),
+(N'Gói Cao Cấp', N'Đăng tin nổi bật trong 30 ngày', 150000.00, 'VND', 30, 'Active');
+GO
 
---------------------------------------------------
--- BATTERIES DATA
---------------------------------------------------
-INSERT INTO Batteries (UserId, BatteryName, Description, Brand, Capacity, Voltage, WarrantyMonths, Price, Currency, CreatedAt, UpdatedAt, Status) VALUES 
-(4, N'Pin Lithium VinFast 50Ah', N'Pin lithium chất lượng cao cho xe điện VinFast', 'VinFast', 50, 48.0, 24, 15000000, 'VND', '2024-03-01 09:00:00', '2024-03-01 09:00:00', 'Available'),
-(6, N'Tesla Model 3 Battery Pack', N'Genuine Tesla battery pack, excellent condition', 'Tesla', 75, 350.0, 36, 8500, 'USD', '2024-03-05 14:20:00', '2024-03-05 14:20:00', 'Available'),
-(8, N'BYD Blade Battery 60Ah', N'Advanced BYD Blade battery technology', 'BYD', 60, 52.0, 30, 18000000, 'VND', '2024-03-10 10:30:00', '2024-03-10 10:30:00', 'Available'),
-(4, N'LiFePO4 Battery 40Ah', N'Long-lasting lithium iron phosphate battery', 'CATL', 40, 48.0, 60, 12000000, 'VND', '2024-03-15 08:45:00', '2024-03-15 08:45:00', 'Sold');
+-- 4. Bảng InspectionFees (Phí giám định)
+INSERT INTO InspectionFees (Description, FeeAmount, Currency, Type, InspectionDays, Status) VALUES
+(N'Phí giám định xe tiêu chuẩn', 500000.00, 'VND', 'fixed', 3, 'Active');
+GO
 
 --------------------------------------------------
--- BATTERY IMAGES DATA
+-- DỮ LIỆU NGƯỜI DÙNG (USERS)
 --------------------------------------------------
-INSERT INTO BatteryImages (BatteryId, ImageUrl) VALUES 
-(1, 'https://example.com/batteries/vinfast_battery_1.jpg'),
-(1, 'https://example.com/batteries/vinfast_battery_2.jpg'),
-(2, 'https://example.com/batteries/tesla_battery_1.jpg'),
-(2, 'https://example.com/batteries/tesla_battery_2.jpg'),
-(3, 'https://example.com/batteries/byd_battery_1.jpg'),
-(4, 'https://example.com/batteries/lifepo4_battery_1.jpg');
+INSERT INTO Users (UserName, FullName, Email, Phone, Password, ImageUrl, RoleId, CreatedAt, UpdatedAt, Wallet, Status) VALUES
+('admin', N'Quản Trị Viên', 'admin@gmail.com', '0987654321', '1', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJEqnKT0022XaMCyb6K37bte9OIjdUGLCHTA&s', 3, GETDATE(), GETDATE(), 0.00, 'Active'),
+('staff01', N'Nhân Viên Giám Định', 'staff@gmail.com', '0123456789', '1', 'https://tiemchupanh.com/wp-content/uploads/2024/07/4ed9efe2b3fd60a339ec23-683x1024.jpg', 2, GETDATE(), GETDATE(), 0.00, 'Active'),
+('nguyenvana', N'Nguyễn Văn An', 'user1@gmail.com', '0912345678', '1', 'https://chothuestudio.com/wp-content/uploads/2024/07/TCA_3837.jpg', 1, GETDATE(), GETDATE(), 0.00, 'Active'),
+('tranthib', N'Trần Thị Bình', 'user2@gmail.com', '0912345679', '1', NULL, 1, GETDATE(), GETDATE(), 0.00, 'Active'),
+('leminhc', N'Lê Minh Cường', 'user3@gmail.com', '0912345680', '1', NULL, 1, GETDATE(), GETDATE(), 0.00, 'Active'),
+('ducpv', N'Phạm Văn Đức', 'ducpvse183843@fpt.edu.vn', '0345076573', '1', NULL, 1, GETDATE(), GETDATE(), 0.00, 'Active');
+GO
 
 --------------------------------------------------
--- VEHICLES DATA
+-- DỮ LIỆU PHƯƠNG TIỆN VÀ PIN (VEHICLES & BATTERIES)
 --------------------------------------------------
-INSERT INTO Vehicles (UserId, VehicleName, Description, Brand, Model, Color, Seats, BodyType, BatteryCapacity, RangeKm, ChargingTimeHours, FastChargingSupport, MotorPowerKw, TopSpeedKph, Acceleration, ConnectorType, Year, Km, BatteryStatus, WarrantyMonths, Price, Currency, CreatedAt, UpdatedAt, Verified, Status) VALUES 
-(4, N'VinFast VF8 Plus', N'SUV điện cao cấp, tình trạng như mới', 'VinFast', 'VF8 Plus', N'Xanh đen', 5, 'SUV', 87.7, 420, 6.5, 1, 300, 200, 5.9, 'CCS2', 2023, 5000, N'Excellent', 48, 1250000000, 'VND', '2024-03-01 10:00:00', '2024-03-01 10:00:00', 1, 'Available'),
-(6, N'Tesla Model Y Long Range', N'Premium electric SUV with autopilot', 'Tesla', 'Model Y', 'Pearl White', 7, 'SUV', 75.0, 526, 5.0, 1, 346, 217, 4.8, 'CCS2', 2022, 15000, 'Very Good', 24, 52000, 'USD', '2024-03-05 11:30:00', '2024-03-05 11:30:00', 1, 'Available'),
-(8, N'BYD Tang EV', N'7-seat electric SUV with luxury features', 'BYD', 'Tang EV', 'Midnight Black', 7, 'SUV', 86.4, 505, 7.0, 1, 380, 180, 6.2, 'GB/T', 2023, 8000, 'Excellent', 36, 980000000, 'VND', '2024-03-10 09:15:00', '2024-03-10 09:15:00', 1, 'Available'),
-(4, N'VinFast VF9 Premium', N'Flagship electric SUV', 'VinFast', 'VF9', N'Trắng ngọc trai', 7, 'SUV', 123.0, 594, 8.0, 1, 408, 200, 6.5, 'CCS2', 2024, 2000, 'Like New', 60, 1690000000, 'VND', '2024-03-15 14:00:00', '2024-03-15 14:00:00', 0, 'Pending Verification'),
-(6, N'Hyundai IONIQ 6', N'Sleek electric sedan with great efficiency', 'Hyundai', 'IONIQ 6', 'Gravity Gold', 5, 'Sedan', 77.4, 614, 4.5, 1, 239, 185, 7.4, 'CCS2', 2023, 12000, 'Good', 24, 45000, 'USD', '2024-03-20 16:30:00', '2024-03-20 16:30:00', 1, 'Sold');
 
---------------------------------------------------
--- VEHICLE IMAGES DATA
---------------------------------------------------
-INSERT INTO VehicleImages (VehicleId, ImageUrl) VALUES 
-(1, 'https://example.com/vehicles/vf8_exterior_1.jpg'),
-(1, 'https://example.com/vehicles/vf8_exterior_2.jpg'),
-(1, 'https://example.com/vehicles/vf8_interior_1.jpg'),
-(2, 'https://example.com/vehicles/tesla_model_y_1.jpg'),
-(2, 'https://example.com/vehicles/tesla_model_y_2.jpg'),
-(3, 'https://example.com/vehicles/byd_tang_1.jpg'),
-(3, 'https://example.com/vehicles/byd_tang_2.jpg'),
-(4, 'https://example.com/vehicles/vf9_premium_1.jpg'),
-(5, 'https://example.com/vehicles/ioniq6_1.jpg');
+-- Xe của Nguyễn Văn An (UserId=3) - Đang có sẵn
+INSERT INTO Vehicles (UserId, VehicleName, Description, Brand, Model, Color, Seats, BodyType, BatteryCapacity, RangeKm, ChargingTimeHours, FastChargingSupport, MotorPowerKw, TopSpeedKph, Acceleration, ConnectorType, Year, Km, BatteryStatus, WarrantyMonths, Price, Currency, CreatedAt, UpdatedAt, Verified, Status) VALUES
+(3, N'VinFast VF8 Eco 2023', N'Xe nữ dùng, như mới 99%', N'VinFast', 'VF8 Eco', N'Trắng', 5, 'SUV', 82.0, 420, 8.0, 1, 150, 200, 5.5, 'CCS2', 2023, 15000, N'Tốt', 24, 850000000.00, 'VND', GETDATE(), GETDATE(), 1, 'Available');
+GO
 
---------------------------------------------------
--- INSPECTION FEES DATA
---------------------------------------------------
-INSERT INTO InspectionFees (Description, FeeAmount, Currency, Type, InspectionDays, CreatedAt, UpdatedAt, Status) VALUES 
-(N'Phí kiểm định xe điện cơ bản', 2000000, 'VND', 'fixed', 3, '2024-01-01 00:00:00', '2024-01-01 00:00:00', 'Active'),
-(N'Phí kiểm định xe điện cao cấp', 3500000, 'VND', 'fixed', 5, '2024-01-01 00:00:00', '2024-01-01 00:00:00', 'Active'),
-(N'Premium Vehicle Inspection', 150, 'USD', 'fixed', 7, '2024-01-01 00:00:00', '2024-01-01 00:00:00', 'Active');
+-- Xe của Trần Thị Bình (UserId=4) - Chờ giám định để đấu giá
+INSERT INTO Vehicles (UserId, VehicleName, Description, Brand, Model, Color, Seats, BodyType, BatteryCapacity, RangeKm, ChargingTimeHours, FastChargingSupport, MotorPowerKw, TopSpeedKph, Acceleration, ConnectorType, Year, Km, BatteryStatus, WarrantyMonths, Price, Currency, CreatedAt, UpdatedAt, Verified, Status) VALUES
+(4, N'Hyundai Ioniq 5 2022', N'Bản cao cấp, full option', N'Hyundai', 'Ioniq 5', N'Bạc', 5, 'SUV', 72.6, 480, 6.5, 1, 160, 185, 7.4, 'CCS2', 2022, 25000, N'Tốt', 12, 900000000.00, 'VND', GETDATE(), GETDATE(), 0, 'Pending Verification');
+GO
 
---------------------------------------------------
--- VEHICLE INSPECTIONS DATA
---------------------------------------------------
-INSERT INTO VehicleInspections (VehicleId, StaffId, InspectionDate, Notes, CancelReason, InspectionFeeId, InspectionFee, Status) VALUES 
-(1, 2, '2024-03-02 09:00:00', N'Xe trong tình trạng tốt, pin hoạt động bình thường', NULL, 2, 3500000, 'Completed'),
-(2, 3, '2024-03-06 10:30:00', N'Vehicle in excellent condition, autopilot features working perfectly', NULL, 3, 150, 'Completed'),
-(3, 2, '2024-03-11 14:00:00', N'All systems operational, battery health at 95%', NULL, 2, 3500000, 'Completed'),
-(4, 3, '2024-03-18 11:00:00', N'New vehicle, all systems check passed', NULL, 2, 3500000, 'Scheduled');
+-- Pin của Lê Minh Cường (UserId=5)
+INSERT INTO Batteries (UserId, BatteryName, Description, Brand, Capacity, Voltage, WarrantyMonths, Price, Currency, CreatedAt, UpdatedAt, Status) VALUES
+(5, N'Pin Lithium-ion 48V 100Ah', N'Pin thay thế cho xe máy điện', N'Generic', 100, 48.0, 6, 12000000.00, 'VND', GETDATE(), GETDATE(), 'Available');
+GO
 
---------------------------------------------------
--- AUCTIONS FEE DATA
---------------------------------------------------
-INSERT INTO AuctionsFee (Description, FeePerMinute, EntryFee, Currency, Type, CreatedAt, UpdatedAt, Status) VALUES 
-(N'Phí đấu giá tiêu chuẩn', 50000, 500000, 'VND', 'fixed', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 'Active'),
-(N'Premium auction fee', 2, 25, 'USD', 'fixed', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 'Active');
+--------------------------------------------------------------------
+-- KỊCH BẢN 1: NGUYỄN VĂN AN (UserId=3) MUA GÓI VÀ ĐĂNG TIN BÁN XE
+--------------------------------------------------------------------
 
---------------------------------------------------
--- POST PACKAGES DATA
---------------------------------------------------
-INSERT INTO PostPackages (PackageName, Description, PostPrice, Currency, PostDuration, Status) VALUES 
-(N'Gói Cơ Bản', N'Đăng tin 30 ngày, hiển thị thông thường', 100000, 'VND', 30, 'Active'),
-(N'Gói Nổi Bật', N'Đăng tin 45 ngày, ưu tiên hiển thị', 200000, 'VND', 45, 'Active'),
-(N'Gói VIP', N'Đăng tin 60 ngày, hiển thị đầu trang', 350000, 'VND', 60, 'Active'),
-('Basic Package', 'Standard 30-day listing', 5, 'USD', 30, 'Active'),
-('Premium Package', 'Featured 60-day listing', 15, 'USD', 60, 'Active');
+-- 1. Thanh toán cho gói đăng tin Cơ bản (PostPackagesId=1)
+INSERT INTO Payments (UserId, PaymentMethodId, Gateway, TransactionDate, Content, TransferType, TransferAmount, Currency, Status, ReferenceType, ReferenceId) VALUES
+(3, 1, 'VNPAY', GETDATE(), N'Thanh toán gói đăng tin Cơ Bản', N'DEPOSIT', 50000.00, 'VND', 'Paid', 'UserPackage', 1);
+GO
 
---------------------------------------------------
--- PAYMENTS DATA
---------------------------------------------------
-INSERT INTO Payments (UserId, Gateway, TransactionDate, AccountNumber, Content, TransferType, TransferAmount, Currency, Accumulated, CreatedAt, UpdatedAt, Status) VALUES 
-(4, 'VNPay', '2024-02-25 10:30:00', '1234567890', N'Nạp tiền vào tài khoản', 'Deposit', 5000000, 'VND', 5000000, '2024-02-25 10:30:00', '2024-02-25 10:30:00', 'Success'),
-(5, 'Momo', '2024-02-28 14:15:00', '0923456789', N'Thanh toán gói đăng tin', 'Payment', -200000, 'VND', 1800000, '2024-02-28 14:15:00', '2024-02-28 14:15:00', 'Success'),
-(6, 'PayPal', '2024-03-01 09:45:00', 'thang.hoang@paypal.com', 'Account top-up', 'Deposit', 100, 'USD', 100, '2024-03-01 09:45:00', '2024-03-01 09:45:00', 'Success'),
-(7, 'VNPay', '2024-03-05 16:20:00', '9876543210', N'Thanh toán phí kiểm định', 'Payment', -3500000, 'VND', 1500000, '2024-03-05 16:20:00', '2024-03-05 16:20:00', 'Success'),
-(8, 'Momo', '2024-03-08 11:30:00', '0956789012', N'Nạp tiền tài khoản', 'Deposit', 3000000, 'VND', 3000000, '2024-03-08 11:30:00', '2024-03-08 11:30:00', 'Success');
+-- 2. Tạo UserPackage cho Nguyễn Văn An sau khi thanh toán thành công
+-- Giả sử ID của thanh toán trên là 1
+INSERT INTO UserPackages (UserId, PackageId, PaymentsId, PurchasedPostDuration, PurchasedAtPrice, Currency, PurchasedAt, Status) VALUES
+(3, 1, 1, 7, 50000.00, 'VND', GETDATE(), 'Active');
+GO
 
---------------------------------------------------
--- USER PACKAGES DATA
---------------------------------------------------
-INSERT INTO UserPackages (UserId, PackageId, PurchasedPostDuration, PurchasedAtPrice, Currency, PurchasedAt, Status) VALUES 
-(4, 2, 45, 200000, 'VND', '2024-02-28 09:00:00', 'Active'),
-(6, 5, 60, 15, 'USD', '2024-03-01 10:30:00', 'Active'),
-(8, 3, 60, 350000, 'VND', '2024-03-08 14:15:00', 'Active'),
-(5, 1, 30, 100000, 'VND', '2024-02-28 14:15:00', 'Used');
+-- 3. Tạo bài đăng bán xe (VehicleId=1) sử dụng gói vừa mua (UserPackagesId=1)
+-- Giả sử ID của UserPackage trên là 1
+INSERT INTO UserPosts (UserId, VehicleId, UserPackageId, PostedAt, ExpiredAt, Status) VALUES
+(3, 1, 1, GETDATE(), DATEADD(day, 7, GETDATE()), 'active');
+GO
 
---------------------------------------------------
--- USER POSTS DATA
---------------------------------------------------
-INSERT INTO UserPosts (UserId, VehicleId, BatteryId, UserPackageId, PostedAt, ExpiredAt, Status) VALUES 
-(4, 1, NULL, 1, '2024-03-01 10:00:00', '2024-04-15 10:00:00', 'Active'),
-(6, 2, NULL, 2, '2024-03-05 11:30:00', '2024-05-04 11:30:00', 'Active'),
-(8, 3, NULL, 3, '2024-03-10 09:15:00', '2024-05-09 09:15:00', 'Active'),
-(4, NULL, 1, 1, '2024-03-01 11:00:00', '2024-04-15 11:00:00', 'Active'),
-(5, 5, NULL, 4, '2024-03-20 16:30:00', '2024-04-19 16:30:00', 'Expired');
+-- 4. Ghi lại hoạt động
+INSERT INTO Activities (UserId, PaymentId, Action, ReferenceId, ReferenceType, CreatedAt, UpdatedAt, Status) VALUES
+(3, 1, N'Mua gói tin', 1, 'UserPackage', GETDATE(), GETDATE(), 'Completed'),
+(3, NULL, N'Đăng bán xe', 1, 'UserPost', GETDATE(), GETDATE(), 'Completed');
+GO
 
---------------------------------------------------
--- AUCTIONS DATA
---------------------------------------------------
-INSERT INTO Auctions (VehicleId, SellerId, StartPrice, StartTime, EndTime, AuctionsFeeId, FeePerMinute, OpenFee, EntryFee, Status) VALUES 
-(2, 6, 50000, '2024-03-25 10:00:00', '2024-03-25 12:00:00', 2, 2, 50, 25, 'Completed'),
-(3, 8, 900000000, '2024-03-28 14:00:00', '2024-03-28 16:00:00', 1, 50000, 1000000, 500000, 'Active');
+--------------------------------------------------------------------
+-- KỊCH BẢN 2: TẠO PHIÊN ĐẤU GIÁ CHO XE CỦA TRẦN THỊ BÌNH (UserId=4)
+--------------------------------------------------------------------
 
---------------------------------------------------
--- AUCTION BIDS DATA
---------------------------------------------------
-INSERT INTO AuctionBids (AuctionId, BidderId, BidAmount, BidTime, Status) VALUES 
-(1, 5, 50500, '2024-03-25 10:15:00', 'Valid'),
-(1, 7, 51000, '2024-03-25 10:30:00', 'Valid'),
-(1, 5, 51500, '2024-03-25 11:00:00', 'Valid'),
-(1, 7, 52000, '2024-03-25 11:45:00', 'Winning'),
-(2, 4, 920000000, '2024-03-28 14:30:00', 'Valid'),
-(2, 7, 950000000, '2024-03-28 15:15:00', 'Leading');
+-- 1. Tạo phiên đấu giá cho xe VehicleId=2
+INSERT INTO Auctions (VehicleId, SellerId, StartPrice, StartTime, EndTime, FeePerMinute, OpenFee, EntryFee, Status) VALUES
+(2, 4, 900000000.00, DATEADD(day, 1, GETDATE()), DATEADD(day, 2, GETDATE()), 10000.00, 100000.00, 5000000.00, 'pending');
+GO
 
---------------------------------------------------
--- BUY SELL DATA
---------------------------------------------------
-INSERT INTO BuySell (BuyerId, SellerId, VehicleId, BatteryId, BuyDate, CarPrice, Currency, Status) VALUES 
-(7, 6, 5, NULL, '2024-03-21 10:30:00', 45000, 'USD', 'Completed'),
-(5, 4, NULL, 4, '2024-03-16 14:20:00', 12000000, 'VND', 'Completed'),
-(7, 6, 2, NULL, '2024-03-26 15:30:00', 52000, 'USD', 'Pending');
+-- 2. Tự động tạo phí đấu giá đi kèm
+-- Giả sử AuctionId vừa tạo là 1
+INSERT INTO AuctionsFee (AuctionsId, Description, FeePerMinute, EntryFee, Currency, Type, CreatedAt, Status) VALUES
+(1, N'Phí cho phiên đấu giá xe Ioniq 5', 10000.00, 5000000.00, 'VND', 'fixed', GETDATE(), 'Active');
+GO
 
---------------------------------------------------
--- ACTIVITIES DATA
---------------------------------------------------
-INSERT INTO Activities (UserId, PaymentId, Action, ReferenceId, ReferenceType, CreatedAt, UpdatedAt, Status) VALUES 
-(4, 1, 'DEPOSIT', 1, 'Payment', '2024-02-25 10:30:00', '2024-02-25 10:30:00', 'Completed'),
-(5, 2, 'PURCHASE_PACKAGE', 4, 'UserPackage', '2024-02-28 14:15:00', '2024-02-28 14:15:00', 'Completed'),
-(6, 3, 'DEPOSIT', 3, 'Payment', '2024-03-01 09:45:00', '2024-03-01 09:45:00', 'Completed'),
-(4, NULL, 'POST_VEHICLE', 1, 'Vehicle', '2024-03-01 10:00:00', '2024-03-01 10:00:00', 'Completed'),
-(6, NULL, 'POST_VEHICLE', 2, 'Vehicle', '2024-03-05 11:30:00', '2024-03-05 11:30:00', 'Completed'),
-(7, NULL, 'BID_AUCTION', 4, 'AuctionBid', '2024-03-25 11:45:00', '2024-03-25 11:45:00', 'Completed'),
-(7, NULL, 'BUY_VEHICLE', 1, 'BuySell', '2024-03-21 10:30:00', '2024-03-21 10:30:00', 'Completed'),
-(5, NULL, 'BUY_BATTERY', 2, 'BuySell', '2024-03-16 14:20:00', '2024-03-16 14:20:00', 'Completed');
-go
+-- 3. Lê Minh Cường (UserId=5) và Phạm Thu Dung (UserId=6) tham gia đấu giá
+
+-- 3.1. Cường thanh toán phí tham gia
+INSERT INTO Payments (UserId, PaymentMethodId, Gateway, TransactionDate, Content, TransferType, TransferAmount, Currency, Status, ReferenceType, ReferenceId) VALUES
+(5, 1, 'VNPAY', GETDATE(), N'Thanh toán phí tham gia đấu giá xe Ioniq 5', N'DEPOSIT', 5000000.00, 'VND', 'Paid', 'AuctionFee', 1);
+GO
+
+-- 3.2. Cường được thêm vào danh sách tham gia
+-- Giả sử PaymentId của Cường là 2
+INSERT INTO AuctionParticipants (PaymentsId, UserId, AuctionsId, DepositAmount, DepositTime, RefundStatus, Status, IsWinningBid) VALUES
+(2, 5, 1, 5000000.00, GETDATE(), 'NotRefunded', 'Active', 0);
+GO
+
+-- 3.3. Dung thanh toán phí tham gia
+INSERT INTO Payments (UserId, PaymentMethodId, Gateway, TransactionDate, Content, TransferType, TransferAmount, Currency, Status, ReferenceType, ReferenceId) VALUES
+(6, 1, 'VNPAY', GETDATE(), N'Thanh toán phí tham gia đấu giá xe Ioniq 5', N'DEPOSIT', 5000000.00, 'VND', 'Paid', 'AuctionFee', 1);
+GO
+
+-- 3.4. Dung được thêm vào danh sách tham gia
+-- Giả sử PaymentId của Dung là 3
+INSERT INTO AuctionParticipants (PaymentsId, UserId, AuctionsId, DepositAmount, DepositTime, RefundStatus, Status, IsWinningBid) VALUES
+(3, 6, 1, 5000000.00, GETDATE(), 'NotRefunded', 'Active', 0);
+GO
+
+-- 4. Bắt đầu phiên đấu giá (Cập nhật status của Auction thành 'active')
+UPDATE Auctions SET Status = 'active', StartTime = GETDATE() WHERE AuctionsId = 1;
+GO
+
+-- 5. Quá trình ra giá
+-- Giả sử ParticipantId của Cường là 1, của Dung là 2
+-- Cường ra giá đầu tiên
+INSERT INTO AuctionBids (AuctionId, AuctionParticipantId, BidderId, BidAmount, BidTime, Status) VALUES
+(1, 1, 5, 905000000.00, GETDATE(), 'Valid');
+GO
+
+-- Dung ra giá cao hơn
+INSERT INTO AuctionBids (AuctionId, AuctionParticipantId, BidderId, BidAmount, BidTime, Status) VALUES
+(1, 2, 6, 910000000.00, DATEADD(minute, 2, GETDATE()), 'Valid');
+GO
+
+-- Cường ra giá cao hơn nữa
+INSERT INTO AuctionBids (AuctionId, AuctionParticipantId, BidderId, BidAmount, BidTime, Status) VALUES
+(1, 1, 5, 915000000.00, DATEADD(minute, 5, GETDATE()), 'Valid');
+GO
+
+-- 6. Kết thúc phiên đấu giá
+UPDATE Auctions SET Status = 'ended', EndTime = GETDATE() WHERE AuctionsId = 1;
+GO
+
+-- 7. Cập nhật người chiến thắng và người thua
+-- Cường (UserId=5, ParticipantId=1) là người chiến thắng
+UPDATE AuctionParticipants SET Status = 'Won', IsWinningBid = 1 WHERE AuctionParticipantId = 1;
+-- Dung (UserId=6, ParticipantId=2) là người thua, chờ hoàn tiền cọc
+UPDATE AuctionParticipants SET Status = 'Lose', RefundStatus = 'PendingConfirmation' WHERE AuctionParticipantId = 2;
+GO
+
+-- 8. Tạo giao dịch mua bán sau khi đấu giá thành công
+INSERT INTO BuySell (BuyerId, SellerId, VehicleId, BuyDate, CarPrice, Currency, Status) VALUES
+(5, 4, 2, GETDATE(), 915000000.00, 'VND', 'Completed');
+GO
+
+-- 9. Cập nhật trạng thái xe đã bán
+UPDATE Vehicles SET Status = 'Sold' WHERE VehiclesId = 2;
+GO
+
+-- 10. Ghi lại các hoạt động
+INSERT INTO Activities (UserId, PaymentId, Action, ReferenceId, ReferenceType, CreatedAt, UpdatedAt, Status) VALUES
+(5, 2, N'Tham gia đấu giá', 1, 'Auction', GETDATE(), GETDATE(), 'Completed'),
+(6, 3, N'Tham gia đấu giá', 1, 'Auction', GETDATE(), GETDATE(), 'Completed'),
+(5, NULL, N'Thắng đấu giá', 1, 'Auction', GETDATE(), GETDATE(), 'Completed'),
+(5, NULL, N'Mua xe', 1, 'BuySell', GETDATE(), GETDATE(), 'Completed');
+GO
 
 select * from Users
+
+--select * from Payments
+
+--select * from PaymentsMethods
+
+--select * from UserPosts
+
+--select * from PostPackages
+
+select * from AuctionsFee
+
+select * from Auctions
+
+select * from AuctionBids
+
+select * from AuctionParticipants
+
+
+select * from AuctionParticipants
+

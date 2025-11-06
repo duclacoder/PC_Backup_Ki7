@@ -20,11 +20,7 @@ namespace EVCMS.Repositories.DucPV.Repositories
         }
 
         public async Task<UserAccount> GetUserAccount (string userName, string password)
-        {
-            //return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Email == Email && u.Password == password && u.IsActive == true);
-
-            //return await _context.UserAccounts.FirstOrDefaultAsync(u => u.Phone == Phone && u.Password == password && u.IsActive == true);
-            //return await _context.UserAccounts.FirstOrDefaultAsync(u => u.EmployeeCode == userName && u.Password == password && u.IsActive == true);
+        {            
             return await _context.UserAccounts.FirstOrDefaultAsync(u => u.UserName == userName && u.Password == password && u.IsActive == true);
         }
 

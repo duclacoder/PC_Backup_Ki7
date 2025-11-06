@@ -84,7 +84,6 @@
 
         connection.start();
 
-        // Hàm gọi hub method
         async function deleteBySignalR(transactionId) {
             try {
                 await connection.invoke("Receiver_DeleteTransactionDucPV", transactionId);

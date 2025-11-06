@@ -20,14 +20,9 @@
                 <input type="hidden" asp-for="TransactionsDucPv.TransactionTransactionsDucPvid" />
 
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label asp-for="TransactionsDucPv.SessionId" class="form-label"></label>
-                        <select asp-for="TransactionsDucPv.SessionId" class="form-select" asp-items="ViewBag.SessionId"></select>
-                        <span asp-validation-for="TransactionsDucPv.SessionId" class="text-danger small"></span>
-                    </div>
 
                     <div class="col-md-6">
-                        <label asp-for="TransactionsDucPv.UserAccountId" class="form-label"></label>
+                        <label asp-for="TransactionsDucPv.UserAccount.Email" class="form-label"></label>
                         <select asp-for="TransactionsDucPv.UserAccountId" class="form-select" asp-items="ViewBag.UserAccountId"></select>
                         <span asp-validation-for="TransactionsDucPv.UserAccountId" class="text-danger small"></span>
                     </div>

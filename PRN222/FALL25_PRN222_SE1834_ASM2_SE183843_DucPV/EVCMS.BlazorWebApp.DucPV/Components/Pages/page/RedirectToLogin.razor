@@ -1,0 +1,30 @@
+﻿@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+@code {
+    private bool _checkedLogin = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_checkedLogin)
+        {
+            await Task.Delay(300); // thêm delay nhỏ để sessionStorage được set
+            try
+            {
+                var user = await JS.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
+
+                if (string.IsNullOrEmpty(user))
+                {
+                    NavigationManager.NavigateTo("/login", true);
+                }
+                else
+                {
+                    _checkedLogin = true;
+                    StateHasChanged();
+                }
+            }
+            catch { }
+        }
+    }
+}
+

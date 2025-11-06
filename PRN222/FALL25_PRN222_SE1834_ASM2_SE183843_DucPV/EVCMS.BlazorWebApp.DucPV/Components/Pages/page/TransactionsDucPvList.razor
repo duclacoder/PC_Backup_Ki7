@@ -1,15 +1,77 @@
 ﻿@page "/TransactionsDucPv/TransactionsDucPvList"
 @using EVCMS.Repositories.DucPV.Models;
 @using EVCMS.Services;
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+
+<RedirectToLogin />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold text-primary">
+        <i class="bi bi-cash-stack me-2"></i> Transaction Management
+    </h3>
+
+    <div>
+        @if (!string.IsNullOrEmpty(currentUser))
+        {
+            <span class="me-3 text-muted">
+                <i class="bi bi-person-circle me-1"></i>@currentUser
+            </span>
+        }
+    </div>
+</div>
 
 <div class="container mt-4">
     <h3 class="mb-4 fw-bold text-primary">
         <i class="bi bi-cash-stack me-2"></i> Transaction Management
     </h3>
 
-    @if (transactionsDucPvLists == null)
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @errorMessage
+        </div>
+    }
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">User Account</label>
+                    <input type="text" class="form-control" @bind="searchUserName" @bind:event="oninput" placeholder="Search by user..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Amount</label>
+                    <InputNumber TValue="decimal?" @bind-Value="searchAmount" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select class="form-select" @bind="searchStatus">
+                        <option value="">All Status</option>
+                        <option value="true">Completed</option>
+                        <option value="false">Pending</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" @onclick="HandleSearch">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+            @if (isSearching)
+            {
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="HandleClearSearch">
+                        <i class="bi bi-x-circle me-1"></i> Clear Search
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (isLoading)
     {
         <div class="d-flex justify-content-center align-items-center" style="height:200px;">
             <div class="spinner-border text-primary" role="status">
@@ -18,14 +80,18 @@
             <span class="ms-3 fw-semibold text-secondary">Loading transactions...</span>
         </div>
     }
-    else if (!transactionsDucPvLists.Any())
+    else if (transactionsDucPvLists == null || !transactionsDucPvLists.Any())
     {
         <div class="alert alert-info text-center mt-4">
-            No transactions found.
+            No transactions found. (@loadedCount loaded)
         </div>
     }
     else
     {
+        <div class="mb-2">
+            <span class="badge bg-info">Loaded @loadedCount transactions</span>
+        </div>
+
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <table class="table table-hover table-striped align-middle mb-0">
@@ -34,20 +100,25 @@
                             <th class="text-center">#</th>
                             <th>Amount</th>
                             <th>User</th>
+                            <th>Payment Method</th>
+                            <th>Transaction Date</th>
                             <th>Description</th>
                             <th>Status</th>
                             <th>Created At</th>
                             <th>Updated At</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in transactionsDucPvLists)
+                        @foreach (TransactionsDucPv item in paginatedTransactions)
                         {
                             <tr>
                                 <td class="text-center fw-semibold">@item.TransactionTransactionsDucPvid</td>
-                                <td class="text-success fw-semibold">@item.Amount</td>
-                                <td>@item.UserAccount</td>
-                                <td>@item.Description</td>
+                                <td class="text-success fw-semibold">@((item.Amount.HasValue) ? item.Amount.Value.ToString("N2") : "-")</td>
+                                <td>@(item.UserAccount?.FullName ?? item.UserAccount?.UserName ?? "-")</td>
+                                <td>@(item.MethodDucPv?.MethodType ?? "-")</td>
+                                <td>@(item.TransactionDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
                                 <td>
                                     @if (item.Status == true)
                                     {
@@ -60,42 +131,303 @@
                                 </td>
                                 <td>@item.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-warning me-2" @onclick="() => HandleUpdate(item.TransactionTransactionsDucPvid)">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => HandleDelete(item.TransactionTransactionsDucPvid)">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </td>
                             </tr>
                         }
                     </tbody>
-                </table>                
+                </table>
             </div>
+
+            <!-- Pagination Section (unchanged) -->
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">
+                            Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, filteredTransactions.Count()) of @filteredTransactions.Count() transactions
+                        </span>
+                    </div>
+                    <nav>
+                        <ul class="pagination mb-0">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(1)" disabled="@(currentPage == 1)">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </button>
+                            </li>
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(currentPage - 1)" disabled="@(currentPage == 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                            </li>
+
+                            @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                            {
+                                var pageNumber = i;
+                                <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                    <button class="page-link" @onclick="() => ChangePage(pageNumber)">@pageNumber</button>
+                                </li>
+                            }
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(currentPage + 1)" disabled="@(currentPage == totalPages)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePage(totalPages)" disabled="@(currentPage == totalPages)">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div>
+                        <select class="form-select form-select-sm" @bind="pageSize" @bind:after="OnPageSizeChanged" style="width: auto;">
+                            <option value="5">5 per page</option>
+                            <option value="10">10 per page</option>
+                            <option value="20">20 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="p-3">
                 <button type="button" class="btn btn-primary" @onclick="HandleCreate">
                     <i class="bi bi-plus-circle me-2"></i> Create
-                </button>           
+                </button>
             </div>
         </div>
     }
 </div>
 
 @code {
-    private List<TransactionsDucPv> transactionsDucPvLists;
+    private List<TransactionsDucPv> transactionsDucPvLists = new();
+    private List<UserAccount> users = new();
+    private List<PaymentMethodsDucPv> paymentMethods = new();
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+    private int loadedCount = 0;
+
+    // Search parameters
+    private string searchUserName = "";
+    private decimal? searchAmount = null;
+    private string searchStatus = "";
+    private bool isSearching = false;
+
+    // Pagination parameters
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages
+    {
+        get
+        {
+            var cnt = filteredTransactions.Count();
+            if (cnt == 0) return 1;
+            return (int)Math.Ceiling(cnt / (double)pageSize);
+        }
+    }
+
+    private IEnumerable<TransactionsDucPv> filteredTransactions
+    {
+        get
+        {
+            var result = transactionsDucPvLists.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchUserName))
+            {
+                result = result.Where(t =>
+                    (t.UserAccount != null && !string.IsNullOrEmpty(t.UserAccount.FullName) && t.UserAccount.FullName.Contains(searchUserName, StringComparison.OrdinalIgnoreCase))
+                    || (t.UserAccount != null && !string.IsNullOrEmpty(t.UserAccount.UserName) && t.UserAccount.UserName.Contains(searchUserName, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            if (searchAmount.HasValue)
+            {
+                result = result.Where(t => t.Amount.HasValue && t.Amount.Value == searchAmount.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchStatus))
+            {
+                if (bool.TryParse(searchStatus, out bool statusValue))
+                {
+                    result = result.Where(t => t.Status == statusValue);
+                }
+            }
+
+            return result.ToList();
+        }
+    }
+
+    private IEnumerable<TransactionsDucPv> paginatedTransactions
+    {
+        get
+        {
+            return filteredTransactions
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        await JS.InvokeVoidAsync("console.log", "✅ JS Runtime is working in OnInitializedAsync");
-        transactionsDucPvLists = await _serviceProvider.TransactionService.GetAllAsync();
-    }
-
-    public async Task HandleCreate()
-    {
-        // in log ra console để kiểm tra sự kiện có tới client không
+        isLoading = true;
+        errorMessage = string.Empty;
         try
         {
-            await JS.InvokeVoidAsync("console.log", $"HandleCreate clicked at {DateTime.Now:O}");
-        }
-        catch
-        {
-            // nếu console log ko chạy cũng ko ảnh hưởng chuyển trang
-        }
+            var username = await JS.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
+            if (string.IsNullOrEmpty(username))
+            {
+                NavigationManager.NavigateTo("/login", true);
+                return;
+            }
 
-        // Thử chuyển bằng client router trước, nếu client router có vấn đề bạn có thể đổi forceLoad: true tạm thời.
-        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvCreate", forceLoad: false);
+            transactionsDucPvLists = await _serviceProvider.TransactionService.GetAllAsync();
+            // load transactions
+            var trans = (await _serviceProvider.TransactionService.GetAllAsync())?.ToList() ?? new List<TransactionsDucPv>();
+
+            // load users & payment methods to fill missing navigation props if service didn't include them
+            users = (await _serviceProvider.AccountService.GetAllAsync())?.ToList() ?? new List<UserAccount>();
+            paymentMethods = (await _serviceProvider.PaymentMethodsService.GetAllAsync())?.ToList() ?? new List<PaymentMethodsDucPv>();
+
+            // if navigation props are null, assign based on Id
+            foreach (var t in trans)
+            {
+                if ((t.UserAccount == null || string.IsNullOrEmpty(t.UserAccount.FullName)) && t.UserAccountId.HasValue)
+                {
+                    t.UserAccount = users.FirstOrDefault(u => u.UserAccountId == t.UserAccountId.Value);
+                }
+
+                if (t.MethodDucPv == null && t.MethodDucPvid.HasValue)
+                {
+                    t.MethodDucPv = paymentMethods.FirstOrDefault(m => m.MethodDucPvid == t.MethodDucPvid.Value);
+                }
+            }
+
+            transactionsDucPvLists = trans;
+            loadedCount = transactionsDucPvLists.Count;
+        }
+        catch (Exception ex)
+        {
+            // show a readable error so you can debug
+            errorMessage = $"Error loading transactions: {ex.Message}";
+            transactionsDucPvLists = new List<TransactionsDucPv>();
+            loadedCount = 0;
+            Console.Error.WriteLine(ex);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSearch()
+    {
+        isSearching = !string.IsNullOrWhiteSpace(searchUserName) ||
+                      searchAmount.HasValue ||
+                      !string.IsNullOrEmpty(searchStatus);
+
+        currentPage = 1; // Reset to first page when searching
+        StateHasChanged();
+    }
+
+    private async Task HandleClearSearch()
+    {
+        searchUserName = "";
+        searchAmount = null;
+        searchStatus = "";
+        isSearching = false;
+        currentPage = 1;
+        StateHasChanged();
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page < 1) return;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+        StateHasChanged();
+    }
+
+    private void OnPageSizeChanged()
+    {
+        currentPage = 1; // Reset to first page when changing page size
+        StateHasChanged();
+    }
+
+    public void HandleCreate()
+    {
+        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvCreate", true);
+    }
+
+    public void HandleUpdate(int id)
+    {
+        NavigationManager.NavigateTo($"/TransactionsDucPv/TransactionsDucPvEdit/{id}", true);
+    }
+
+    public async Task HandleDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this transaction?");
+        if (confirmed)
+        {
+            try
+            {
+                var transaction = await _serviceProvider.TransactionService.GetByIdAsync(id);
+                await _serviceProvider.TransactionService.DeleteAsync(transaction);
+
+                transactionsDucPvLists = (await _serviceProvider.TransactionService.GetAllAsync())?.ToList() ?? new List<TransactionsDucPv>();
+                loadedCount = transactionsDucPvLists.Count;
+                if (currentPage > totalPages) currentPage = totalPages;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error deleting transaction: {ex.Message}";
+            }
+        }
+    }
+    private string? currentUser;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCurrentUser();
+        }
+    }
+
+    private async Task LoadCurrentUser()
+    {
+        try
+        {
+            currentUser = await JS.InvokeAsync<string>("sessionStorage.getItem", "currentUser");
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user: {ex.Message}");
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("sessionStorage.removeItem", "currentUser");
+            currentUser = null;
+            await InvokeAsync(StateHasChanged);
+            NavigationManager.NavigateTo("/login", true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during logout: {ex.Message}");
+        }
     }
 }

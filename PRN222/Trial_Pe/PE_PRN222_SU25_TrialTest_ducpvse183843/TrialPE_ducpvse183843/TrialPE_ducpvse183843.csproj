@@ -1,0 +1,271 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\js\signalr\node_modules\.package-lock.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\abort-controller\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\event-target-shim\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\eventsource\example\index.html" />
+    <Content Include="wwwroot\js\signalr\node_modules\eventsource\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\fetch-cookie\cjs\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\fetch-cookie\esm\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\fetch-cookie\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\fetch-cookie\tsconfig.build.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\node-fetch\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\set-cookie-parser\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\tldts-core\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\tldts\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\tough-cookie\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\tr46\lib\mappingTable.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\tr46\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\webidl-conversions\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\whatwg-url\LICENSE.txt" />
+    <Content Include="wwwroot\js\signalr\node_modules\whatwg-url\package.json" />
+    <Content Include="wwwroot\js\signalr\node_modules\ws\package.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\js\signalr\node_modules\.bin\tldts" />
+    <None Include="wwwroot\js\signalr\node_modules\.bin\tldts.cmd" />
+    <None Include="wwwroot\js\signalr\node_modules\.bin\tldts.ps1" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\browser.js" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\browser.mjs" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.js" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.mjs" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.mjs.map" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.umd.js" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.umd.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\polyfill.js" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\polyfill.mjs" />
+    <None Include="wwwroot\js\signalr\node_modules\abort-controller\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.js" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.mjs" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.mjs.map" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.umd.js" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\dist\event-target-shim.umd.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\event-target-shim\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\.editorconfig" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\CONTRIBUTING.md" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\example\eventsource-polyfill.js" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\example\sse-client.js" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\example\sse-server.js" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\HISTORY.md" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\lib\eventsource-polyfill.js" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\lib\eventsource.js" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\eventsource\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\CHANGELOG.md" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\cjs\index-wrapper.js" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\cjs\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\esm\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\fetch-cookie\UNLICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\browser.js" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\lib\index.es.js" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\lib\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\lib\index.mjs" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\LICENSE.md" />
+    <None Include="wwwroot\js\signalr\node_modules\node-fetch\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\set-cookie-parser\lib\set-cookie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\set-cookie-parser\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\set-cookie-parser\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\domain-without-suffix.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\domain-without-suffix.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\domain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\domain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\extract-hostname.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\extract-hostname.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\factory.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\factory.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\is-ip.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\is-ip.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\is-valid.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\is-valid.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\lookup\fast-path.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\lookup\fast-path.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\lookup\interface.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\lookup\interface.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\options.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\options.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\subdomain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\src\subdomain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\cjs\tsconfig.tsbuildinfo" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\domain-without-suffix.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\domain-without-suffix.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\domain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\domain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\extract-hostname.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\extract-hostname.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\factory.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\factory.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\is-ip.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\is-ip.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\is-valid.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\is-valid.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\lookup\fast-path.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\lookup\fast-path.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\lookup\interface.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\lookup\interface.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\options.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\options.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\subdomain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\src\subdomain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\dist\es6\tsconfig.bundle.tsbuildinfo" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain-without-suffix.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain-without-suffix.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\extract-hostname.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\extract-hostname.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\factory.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\factory.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-ip.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-ip.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-valid.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-valid.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\fast-path.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\fast-path.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\interface.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\interface.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\options.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\options.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\subdomain.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts-core\src\subdomain.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\bin\cli.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\src\data\trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\src\data\trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\src\suffix-trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\src\suffix-trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\cjs\tsconfig.tsbuildinfo" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\src\data\trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\src\data\trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\src\suffix-trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\src\suffix-trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\es6\tsconfig.bundle.tsbuildinfo" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.cjs.min.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.cjs.min.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.esm.min.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.esm.min.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.umd.min.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\dist\index.umd.min.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\src\data\trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\src\data\trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\src\suffix-trie.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tldts\src\suffix-trie.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.cjs" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.cjs.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.d.cts" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.js.map" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\tough-cookie\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\tr46\.npmignore" />
+    <None Include="wwwroot\js\signalr\node_modules\tr46\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\tr46\lib\.gitkeep" />
+    <None Include="wwwroot\js\signalr\node_modules\webidl-conversions\lib\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\webidl-conversions\LICENSE.md" />
+    <None Include="wwwroot\js\signalr\node_modules\webidl-conversions\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\lib\public-api.js" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\lib\URL-impl.js" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\lib\url-state-machine.js" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\lib\URL.js" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\lib\utils.js" />
+    <None Include="wwwroot\js\signalr\node_modules\whatwg-url\README.md" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\browser.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\index.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\buffer-util.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\constants.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\event-target.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\extension.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\limiter.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\permessage-deflate.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\receiver.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\sender.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\stream.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\validation.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\websocket-server.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\lib\websocket.js" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\LICENSE" />
+    <None Include="wwwroot\js\signalr\node_modules\ws\README.md" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrialPE.Services\TrialPE.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\abort-controller\dist\abort-controller.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\event-target-shim\index.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\fetch-cookie\cjs\index.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\fetch-cookie\esm\index.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\index.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\domain-without-suffix.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\domain.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\extract-hostname.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\factory.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\is-ip.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\is-valid.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\lookup\fast-path.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\lookup\interface.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\options.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\dist\types\src\subdomain.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\index.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain-without-suffix.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\domain.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\extract-hostname.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\factory.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-ip.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\is-valid.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\fast-path.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\lookup\interface.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\options.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts-core\src\subdomain.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\dist\types\index.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\dist\types\src\data\trie.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\dist\types\src\suffix-trie.d.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\index.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\src\data\trie.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tldts\src\suffix-trie.ts" />
+    <TypeScriptCompile Include="wwwroot\js\signalr\node_modules\tough-cookie\dist\index.d.ts" />
+  </ItemGroup>
+
+</Project>

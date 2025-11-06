@@ -1,0 +1,16 @@
+Phương pháp định giá
+1.Comparable: Đối với 1 khoảng thời gian, thì cái công ty đó sẽ được khoảng bao nhiêu tiền so với 1 công ty tương tự
+2.Capital-base: Toàn bộ chi phí chi bao nhiêu, thì sẽ được định giá từ tổng tiền chi đi lên. (Lương của đội ngũ sáng lập góp vào công ty)
+3.Discount cashflow (chiết khấu dòng tiền):  
+4.Fund raising: 100% quyền chủ động
+- bootstrapping (self-invest)
+- angel invester (3F): Family, friend, foolish (người ngu ngốc)
+- loan (vay) : 
+5.Venture capital (VC) : quỹ đầu tư mạo hiểm
+- Seed round: Thả vốn từng tí từng tí 
+- series a: 20%
+- series b: 50%
+- series c: 35%
+- IPO : đẩy lên chứng khoán
+6. crowfunding
+7. sponsor

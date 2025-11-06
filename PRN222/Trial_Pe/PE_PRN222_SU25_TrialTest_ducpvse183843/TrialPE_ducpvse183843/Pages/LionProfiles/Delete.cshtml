@@ -1,0 +1,92 @@
+﻿@page
+@model TrialPE_ducpvse183843.Pages.LionProfiles.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="container py-4">
+            <i class="bi bi-trash me-2"></i>
+            <h4 class="mb-0">Delete </h4>
+        <div class="card-body">
+            <h5 class="text-danger">Are you sure you want to delete?</h5>
+            <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.LionName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.LionName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.Weight)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.Weight)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.Characteristics)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.Characteristics)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.Warning)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.Warning)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.ModifiedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.ModifiedDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LionProfile.LionType)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LionProfile.LionType.LionTypeId)
+        </dd>
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <input type="hidden" asp-for="LionProfile.LionProfileId" />
+                <button type="button" id="btnHubDelete" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+
+            <a asp-page="./Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+    </dl>
+  </div>
+</div>
+@section Scripts {
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script>
+        "use strict";
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/lionHub").build();
+
+        connection.start().then(function () {
+            console.log("Connected to the SignalR Hub");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        document.getElementById("btnHubDelete").addEventListener("click", function (event) {
+            var dataObj = parseInt(document.getElementById("LionProfile_LionProfileId").value);
+            console.log("Deleting via Hub: " + dataObj);
+
+            connection.invoke("HubDelete_ILionProfile", dataObj)
+                .then(function () {
+                    window.location.href = "./Index";
+                })
+                .catch(function (err) {
+                    return console.error(err.toString());
+                });
+            event.preventDefault();
+        });
+    </script>
+}

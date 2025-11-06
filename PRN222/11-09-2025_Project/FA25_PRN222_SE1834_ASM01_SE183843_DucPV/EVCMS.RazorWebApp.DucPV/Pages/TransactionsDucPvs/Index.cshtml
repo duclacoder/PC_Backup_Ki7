@@ -1,4 +1,5 @@
 ﻿@page
+@* @page "./TransactionsDucPv/Index.cshtml" *@
 @model EVCMS.RazorWebApp.DucPV.Pages.TransactionsDucPvs.IndexModel
 
 @{
@@ -50,7 +51,6 @@
                             <th style="min-width:140px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].CreatedAt)</th>
                             <th style="min-width:140px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].UpdatedAt)</th>
                             <th style="min-width:120px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].MethodDucPv)</th>
-                            <th style="min-width:120px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].Session)</th>
                             <th style="min-width:160px">@Html.DisplayNameFor(model => model.TransactionsDucPv[0].UserAccount)</th>
                             <th class="text-center" style="min-width:160px">Actions</th>
                         </tr>
@@ -86,10 +86,7 @@
                                         @(item.UpdatedAt is DateTime dt2 ? dt2.ToString("dd/MM/yyyy HH:mm") : "-")
                                     </td>
                                     <td class="text-center">
-                                        @(item.MethodDucPv != null ? item.MethodDucPv.MethodDucPvid.ToString() : "-")
-                                    </td>
-                                    <td class="text-center">
-                                        @(item.Session != null ? item.Session.SessionId.ToString() : "-")
+                                        @(item.MethodDucPv != null ? item.MethodDucPv.MethodType : "-")
                                     </td>
                                     <td>
                                         @(item.UserAccount != null ? item.UserAccount.Email : "-")
@@ -106,6 +103,7 @@
                         }
                     </tbody>
                 </table>
+
                 @if (Model.TotalPages > 1)
                 {
                     <nav class="mt-3 d-flex justify-content-center">
@@ -148,9 +146,9 @@
                         </ul>
                     </nav>
                 }
-            </div> 
-        </div> 
-    </div> 
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -164,7 +162,6 @@
             .then(() => console.log("SignalR connected on Index page."))
             .catch(err => console.error("SignalR connect error:", err));
 
-        // Xóa
         connection.on("Receiver_DeleteTransactionDucPV", function (deletedId) {
             const row = document.querySelector(`[data-transaction-id='${deletedId}']`);
             if (row) {
@@ -172,40 +169,34 @@
             }
         });
 
-        // ✅ Thêm mới
         connection.on("Receiver_CreateTransactionDucPV", function (createdItem) {
-            console.log("New transaction created:", createdItem);
-
-            // Tạo dòng mới trong bảng
             const tbody = document.querySelector("table tbody");
             if (tbody) {
                 const tr = document.createElement("tr");
                 tr.setAttribute("data-transaction-id", createdItem.transactionTransactionsDucPvid);
                 tr.innerHTML = `
-                            <td class="text-end">${createdItem.amount ? Number(createdItem.amount).toLocaleString() : "-"}</td>
-                            <td class="text-truncate">${createdItem.description ?? "-"}</td>
-                            <td class="text-center">${createdItem.transactionDate ? new Date(createdItem.transactionDate).toLocaleDateString() : "-"}</td>
-                            <td class="text-center">${createdItem.status}</td>
-                            <td class="text-center">${createdItem.createdAt ? new Date(createdItem.createdAt).toLocaleString() : "-"}</td>
-                            <td class="text-center">${createdItem.updatedAt ? new Date(createdItem.updatedAt).toLocaleString() : "-"}</td>
-                            <td class="text-center">${createdItem.methodDucPv?.methodDucPvid ?? "-"}</td>
-                            <td class="text-center">${createdItem.session?.sessionId ?? "-"}</td>
-                            <td>${createdItem.userAccount?.email ?? "-"}</td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <a href="/DucPV/TransactionsDucPvs/Edit?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                    <a href="/DucPV/TransactionsDucPvs/Details?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-info">Details</a>
-                                    <a href="/DucPV/TransactionsDucPvs/Delete?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-danger">Delete</a>
-                                </div>
-                            </td>
-                        `;
+                    <td class="text-end">${createdItem.amount ? Number(createdItem.amount).toLocaleString() : "-"}</td>
+                    <td class="text-truncate">${createdItem.description ?? "-"}</td>
+                    <td class="text-center">${createdItem.transactionDate ? new Date(createdItem.transactionDate).toLocaleDateString() : "-"}</td>
+                    <td class="text-center">${createdItem.status}</td>
+                    <td class="text-center">${createdItem.createdAt ? new Date(createdItem.createdAt).toLocaleString() : "-"}</td>
+                    <td class="text-center">${createdItem.updatedAt ? new Date(createdItem.updatedAt).toLocaleString() : "-"}</td>
+                    <td class="text-center">${createdItem.methodDucPv?.methodType ?? "-"}</td>
+                    <td class="text-center">${createdItem.session?.sessionId ?? "-"}</td>
+                    <td>${createdItem.userAccount?.email ?? "-"}</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href="/DucPV/TransactionsDucPvs/Edit?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="/DucPV/TransactionsDucPvs/Details?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-info">Details</a>
+                            <a href="/DucPV/TransactionsDucPvs/Delete?id=${createdItem.transactionTransactionsDucPvid}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </td>
+                `;
                 tbody.prepend(tr);
             }
         });
 
         connection.on("Receiver_UpdateTransactionDucPV", function (updatedItem) {
-            console.log("Transaction updated:", updatedItem);
-
             const row = document.querySelector(`[data-transaction-id='${updatedItem.transactionTransactionsDucPvid}']`);
             if (!row) return;
 
@@ -216,7 +207,7 @@
                 <td class="text-center">${updatedItem.status}</td>
                 <td class="text-center">${updatedItem.createdAt ? new Date(updatedItem.createdAt).toLocaleString() : "-"}</td>
                 <td class="text-center">${updatedItem.updatedAt ? new Date(updatedItem.updatedAt).toLocaleString() : "-"}</td>
-                <td class="text-center">${updatedItem.methodDucPv?.methodDucPvid ?? "-"}</td>
+                <td class="text-center">${updatedItem.methodDucPv?.methodType ?? "-"}</td>
                 <td class="text-center">${updatedItem.session?.sessionId ?? "-"}</td>
                 <td>${updatedItem.userAccount?.email ?? "-"}</td>
                 <td class="text-center">
@@ -230,6 +221,3 @@
         });
     </script>
 }
-
-
-

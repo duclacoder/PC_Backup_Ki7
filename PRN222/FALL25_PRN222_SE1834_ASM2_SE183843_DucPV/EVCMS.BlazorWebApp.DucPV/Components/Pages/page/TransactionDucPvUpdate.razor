@@ -1,0 +1,228 @@
+﻿@page "/TransactionsDucPv/TransactionsDucPvEdit/{id:int}"
+@rendermode InteractiveServer
+
+@using EVCMS.Repositories.DucPV.Models;
+@using EVCMS.Services;
+@inject EVCMS.Services.DucPV.IServiceProviders _serviceProvider;
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <h3 class="mb-4 fw-bold text-primary">
+        <i class="bi bi-pencil-square me-2"></i> Edit Transaction
+    </h3>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height:200px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-3 fw-semibold text-secondary">Loading transaction...</span>
+        </div>
+    }
+    else if (transaction == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Transaction not found!
+        </div>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+            <i class="bi bi-arrow-left me-2"></i> Back to List
+        </button>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <EditForm Model="@transaction" OnValidSubmit="@HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Transaction ID</label>
+                            <input type="text" class="form-control bg-light" value="@transaction.TransactionTransactionsDucPvid" disabled />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
+                            <InputNumber @bind-Value="transaction.Amount" class="form-control" />
+                            <!-- nếu muốn rõ kiểu: <InputNumber TValue="decimal?" @bind-Value="transaction.Amount" /> -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">User</label>
+                            <InputSelect TValue="int?" @bind-Value="transaction.UserAccountId" class="form-select">
+                                <option value="">-- Select user --</option>
+                                @foreach (var u in users)
+                                {
+                                    <option value="@u.UserAccountId">@u.FullName (@u.UserName)</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            <InputSelect TValue="int?" @bind-Value="transaction.MethodDucPvid" class="form-select">
+                                <option value="">-- Select method --</option>
+                                @foreach (PaymentMethodsDucPv m in paymentMethods)
+                                {
+                                    <option value="@m.MethodDucPvid">@m.MethodType</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <InputTextArea @bind-Value="transaction.Description" class="form-control" rows="3" placeholder="Enter transaction description" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Transaction Date</label>
+                        <InputDate TValue="DateTime ?" @bind-Value="transaction.TransactionDate" class="form-control" />
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <InputCheckbox @bind-Value="statusValue" class="form-check-input" id="statusCheck" />
+                        <label class="form-check-label" for="statusCheck">
+                            Mark as Completed
+                        </label>
+                    </div>
+
+                    @if (transaction.SessionId.HasValue)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Charging Session (read-only)</label>
+                            <input class="form-control bg-light" value="@transaction.SessionId" disabled />
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Created At</label>
+                            <input type="text" class="form-control bg-light" value="@transaction.CreatedAt?.ToString("dd/MM/yyyy HH:mm")" disabled />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Last Updated</label>
+                            <input type="text" class="form-control bg-light" value="@transaction.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")" disabled />
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            @errorMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @successMessage
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span>Updating...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-save me-2"></i>
+                                <span>Update Transaction</span>
+                            }
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@isSubmitting">
+                            <i class="bi bi-x-circle me-2"></i> Cancel
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private TransactionsDucPv transaction;
+    private List<UserAccount> users = new();
+    private List<PaymentMethodsDucPv> paymentMethods = new();
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    // helper để bind nullable bool
+    private bool statusValue
+    {
+        get => transaction?.Status ?? false;
+        set
+        {
+            if (transaction != null)
+                transaction.Status = value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+
+            // load users và payment methods giống Create page (đổi tên service nếu cần)
+            users = (await _serviceProvider.AccountService.GetAllAsync()).ToList();
+            paymentMethods = (await _serviceProvider.PaymentMethodsService.GetAllAsync()).ToList();
+
+            // load transaction hiện tại
+            transaction = await _serviceProvider.TransactionService.GetByIdAsync(id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading transaction: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = string.Empty;
+            successMessage = string.Empty;
+
+            transaction.UpdatedAt = DateTime.Now;
+            await _serviceProvider.TransactionService.UpdateAsync(transaction);
+
+            successMessage = "Transaction updated successfully!";
+            // điều hướng trở lại list
+            NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList", true);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error updating transaction: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
+    }
+}

@@ -1,119 +1,150 @@
 ﻿@page "/TransactionsDucPv/TransactionsDucPvCreate"
 @using EVCMS.Repositories.DucPV.Models;
 @using EVCMS.Services;
+@rendermode InteractiveServer
 @inject EVCMS.Services.DucPV.IServiceProviders _serviceProvider;
 @inject NavigationManager NavigationManager
 
 <div class="container mt-4">
     <h3 class="mb-4 fw-bold text-primary">
-        <i class="bi bi-plus-circle me-2"></i> Create New Transaction
+        <i class="bi bi-plus-circle me-2"></i> Create Transaction
     </h3>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <EditForm Model="@newTransaction" OnValidSubmit="@HandleSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="alert alert-danger" />
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
-                        <InputNumber @bind-Value="amount" class="form-control" placeholder="Enter amount" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">User Account <span class="text-danger">*</span></label>
-                        <InputText @bind-Value="userAccount" class="form-control" placeholder="Enter user account" />
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Description</label>
-                    <InputTextArea @bind-Value="description" class="form-control" rows="3" placeholder="Enter transaction description" />
-                </div>
-
-                <div class="mb-3 form-check">
-                    <InputCheckbox @bind-Value="status" class="form-check-input" id="statusCheck" />
-                    <label class="form-check-label" for="statusCheck">
-                        Mark as Completed
-                    </label>
-                </div>
-
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger">
-                        @errorMessage
-                    </div>
-                }
-
-                @if (!string.IsNullOrEmpty(successMessage))
-                {
-                    <div class="alert alert-success">
-                        @successMessage
-                    </div>
-                }
-
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                        @if (isSubmitting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                            <span>Creating...</span>
-                        }
-                        else
-                        {
-                            <i class="bi bi-check-circle me-2"></i>
-                            <span>Create Transaction</span>
-                        }
-                    </button>
-                    <button type="button" class="btn btn-secondary" @onclick="Cancel">
-                        <i class="bi bi-x-circle me-2"></i> Cancel
-                    </button>
-                </div>
-            </EditForm>
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height:200px;">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-3 fw-semibold text-secondary">Loading...</span>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <EditForm Model="transaction" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">User</label>
+                            <InputSelect @bind-Value="transaction.UserAccountId" class="form-select">
+                                <option value="">-- Select user --</option>
+                                @foreach (var u in users)
+                                {
+                                    <option value="@u.UserAccountId">@u.FullName (@u.UserName)</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            <InputSelect @bind-Value="transaction.MethodDucPvid" class="form-select">
+                                <option value="">-- Select method --</option>
+                                @foreach (PaymentMethodsDucPv m in paymentMethods)
+                                {
+                                    <option value="@m.MethodDucPvid">@m.MethodType</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
+                        <InputNumber @bind-Value="transaction.Amount" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <InputTextArea @bind-Value="transaction.Description" class="form-control" rows="3" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Transaction Date</label>
+                        <InputDate @bind-Value="transaction.TransactionDate" class="form-control" />
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <InputCheckbox @bind-Value="statusValue" class="form-check-input" id="statusCheck" />
+                        <label class="form-check-label" for="statusCheck">Mark as Completed</label>
+                    </div>
+
+                    <!-- SessionId: not editable (hidden). If you want to show, render read-only below. -->
+                    @if (transaction.SessionId.HasValue)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Charging Session (read-only)</label>
+                            <input class="form-control bg-light" value="@transaction.SessionId" disabled />
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="bi bi-save me-2"></i> Create
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@isSubmitting">
+                            <i class="bi bi-x-circle me-2"></i> Cancel
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-    private TransactionsDucPv newTransaction = new TransactionsDucPv();
-
-    private decimal amount;
-    private string userAccount = string.Empty;
-    private string description = string.Empty;
-    private bool status = false;
-
+    private TransactionsDucPv transaction = new TransactionsDucPv();
+    private List<UserAccount> users = new();
+    private List<PaymentMethodsDucPv> paymentMethods = new();
+    private bool isLoading = true;
     private bool isSubmitting = false;
-    private string errorMessage = string.Empty;
-    private string successMessage = string.Empty;
+
+    private bool statusValue
+    {
+        get => transaction?.Status ?? false;
+        set { if (transaction != null) transaction.Status = value; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = (await _serviceProvider.AccountService.GetAllAsync()).ToList();
+            paymentMethods = (await _serviceProvider.PaymentMethodsService.GetAllAsync()).ToList();
+
+            // sensible defaults
+            transaction.TransactionDate = DateTime.Now;
+            transaction.CreatedAt = DateTime.Now;
+            transaction.UpdatedAt = DateTime.Now;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 
     private async Task HandleSubmit()
     {
         try
         {
             isSubmitting = true;
-            errorMessage = string.Empty;
-            successMessage = string.Empty;
 
-            var transaction = new TransactionsDucPv
-                {
-                    Amount = amount,    // <-- nếu model có trường này
-                    Description = description,
-                    Status = status,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
+            transaction.CreatedAt = DateTime.Now;
+            transaction.UpdatedAt = DateTime.Now;
 
             await _serviceProvider.TransactionService.CreateAsync(transaction);
 
-            successMessage = "Transaction created successfully!";
-
-            // chuyển về route (không include .razor)
-            NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
+            // success -> go back to list
+            NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList", true);
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error creating transaction: {ex.Message}";
+            // show error (you can set a property and render it)
+            Console.Error.WriteLine(ex);
         }
         finally
         {
@@ -121,8 +152,5 @@
         }
     }
 
-    private void Cancel()
-    {
-        NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
-    }
+    private void Cancel() => NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList");
 }

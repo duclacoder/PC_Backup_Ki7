@@ -53,11 +53,5 @@ namespace EVCMS.Repositories.DucPV.Repositories
             return await _context.SaveChangesAsync();
         }
 
-
-        //public async Task<int> updateAsync(TransactionsDucPv transaction)
-        //{
-        //    _context.Update(transaction);
-        //    return await _context.SaveChangesAsync();
-        //}
     }
 }

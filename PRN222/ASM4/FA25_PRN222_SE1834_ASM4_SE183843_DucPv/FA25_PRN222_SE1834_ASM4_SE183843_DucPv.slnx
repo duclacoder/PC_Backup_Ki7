@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="EVCMS.MVCWebApp.DucPv/EVCMS.MVCWebApp.DucPv.csproj" />
+  <Project Path="EVCMS.Repositories.Ducpv/EVCMS.Repositories.DucPV.csproj" />
+  <Project Path="EVCMS.Services.DucPV/EVCMS.Services.DucPV.csproj" />
+</Solution>

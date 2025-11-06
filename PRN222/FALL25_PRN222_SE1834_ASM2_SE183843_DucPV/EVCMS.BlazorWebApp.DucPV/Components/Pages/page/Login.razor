@@ -1,0 +1,100 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+@inject EVCMS.Services.DucPV.IServiceProviders _serviceProvider
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+<div class="container mt-5" style="max-width:400px;">
+    <div class="card shadow">
+        <div class="card-body">
+            <h3 class="text-center mb-4 text-primary fw-bold">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </h3>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+                </div>
+            }
+
+            <EditForm Model="@model" OnValidSubmit="HandleLogin" FormName="LoginForm">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <InputText @bind-Value="model.UserName" class="form-control" />
+                    <ValidationMessage For="@(() => model.UserName)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => model.Password)" />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Logging in...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        <span>Login</span>
+                    }
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginModel model { get; set; } = new();
+
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = string.Empty;
+
+            Console.WriteLine($"[DEBUG] Login attempt: {model.UserName} / {model.Password}");
+
+            var user = await _serviceProvider.AccountService.GetUserAccount(model.UserName, model.Password);
+
+            if (user != null)
+            {
+                await JS.InvokeVoidAsync("sessionStorage.setItem", "currentUser", user.UserName);
+                NavigationManager.NavigateTo("/TransactionsDucPv/TransactionsDucPvList", true);
+            }
+            else
+            {
+                errorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error: " + ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Username is required")]
+        public string UserName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        public string Password { get; set; } = string.Empty;
+    }
+}

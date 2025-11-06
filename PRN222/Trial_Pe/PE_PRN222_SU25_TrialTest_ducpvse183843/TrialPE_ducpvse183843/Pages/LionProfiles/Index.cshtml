@@ -1,0 +1,129 @@
+﻿@page
+@model TrialPE_ducpvse183843.Pages.LionProfiles.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<div>
+    <a asp-page="Create" class="btn btn-success">Create New</a>
+</div>
+<div>
+    <form method="get" class="d-flex">
+        <input type="double" step="0.01" name="Weight" value="@Model.Weight"
+               class="form-control me-2" placeholder="Search by Weight" />
+
+        <input type="text" name="LionTypeName" value="@Model.LionTypeName"
+               class="form-control me-2" placeholder="Search by LionTypeName" />
+
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+<div>
+    <form method="post" asp-page="/Account/Logout">
+        <button type="submit" class="btn btn-outline-danger">Logout</button>
+    </form>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Lion Name</th>
+            <th>Weight</th>
+            <th>Characteristics</th>
+            <th>Warning</th>
+            <th>Modified Date</th>
+            <th>Lion Type</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="reservationTBodyId">
+        @foreach (var item in Model.LionProfile)
+        {
+            <tr id="@item.LionProfileId">
+                <td>
+                    @Html.DisplayFor(modelItem => item.LionName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Weight)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Characteristics)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Warning)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ModifiedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LionType.LionTypeName)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.LionProfileId">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.LionProfileId">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.LionProfileId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 0)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-route-PageNumber="@(Model.PageNumber - 1)"
+                   asp-route-Weight="@Model.Weight"
+                   asp-route-LionTypeName="@Model.LionTypeName">
+                    Previous
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link"
+                       asp-route-PageNumber="@i"
+                       asp-route-Weight="@Model.Weight"
+                       asp-route-LionTypeName="@Model.LionTypeName">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-route-PageNumber="@(Model.PageNumber + 1)"
+                   asp-route-Weight="@Model.Weight"
+                   asp-route-LionTypeName="@Model.LionTypeName">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    "use strict";
+
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl("/lionHub")
+        .build();
+
+    connection.start()
+        .then(() => console.log("Connected to Lion Hub"))
+        .catch(err => console.error("Connection error:", err.toString()));
+
+    connection.on("HubDelete_ILionProfile", function (lionProfileId) {
+        console.log("Deleting row with lionProfileId:", lionProfileId);
+
+        $(`#reservationTBodyId tr#${lionProfileId}`).remove();
+    });
+</script>

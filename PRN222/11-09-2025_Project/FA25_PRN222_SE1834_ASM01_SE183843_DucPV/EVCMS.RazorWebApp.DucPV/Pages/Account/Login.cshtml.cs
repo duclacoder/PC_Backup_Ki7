@@ -47,13 +47,10 @@ namespace EVCMS.RazorWebApp.DucPV.Pages.Account
 
                 Response.Cookies.Append("UserName", userAccount.UserName);
 
-                //// After signing then redirect to default page
                 return RedirectToPage("/TransactionsDucPvs/Index");
-                //return RedirectToPage("/Index");
             }
             else
-            {
-                //ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            {               
                 TempData["Message"] = "Login fail, please check your account";
             }
 

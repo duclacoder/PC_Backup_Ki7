@@ -31,11 +31,6 @@ namespace EVCMS.RazorWebApp.DucPV.Hubs
 
         }
 
-        //public async Task NotifyTransactionDeleted(int transactionId)
-        //{
-        //    await Clients.All.SendAsync("HubDelete_TransactionDucPVService", transactionId);
-        //}
-
         public async Task HubUpdate_TRansactionDucPVService(int transactionId)
         {
             var transaction = await _transactionsServices.GetByIdAsync(transactionId);
